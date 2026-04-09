@@ -1,0 +1,184 @@
+<body class="text-on-background bg-surface-container-lowest min-h-screen flex">
+<!-- Sidebar Navigation Shell -->
+<aside class="hidden md:flex flex-col items-center py-8 gap-8 h-screen w-24 border-r border-white/5 bg-[#0E0E0E]">
+<div class="font-serif text-[#F2CA50] text-xl cursor-pointer" routerLink="/">LV</div>
+<nav class="flex flex-col items-center gap-8 mt-12">
+<button class="flex flex-col items-center gap-1 group text-[#F2CA50] bg-[#1F1F1F] rounded-full p-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+<span class="font-['Manrope'] uppercase tracking-[0.1em] text-[8px]">Concierge</span>
+</button>
+<button class="flex flex-col items-center gap-1 group text-[#353535] hover:bg-[#1F1F1F] hover:text-[#D4AF37] transition-all p-3 rounded-full">
+<span class="material-symbols-outlined">auto_awesome_motion</span>
+<span class="font-['Manrope'] uppercase tracking-[0.1em] text-[8px]">Bookings</span>
+</button>
+<button class="flex flex-col items-center gap-1 group text-[#353535] hover:bg-[#1F1F1F] hover:text-[#D4AF37] transition-all p-3 rounded-full">
+<span class="material-symbols-outlined">history</span>
+<span class="font-['Manrope'] uppercase tracking-[0.1em] text-[8px]">History</span>
+</button>
+<button class="flex flex-col items-center gap-1 group text-[#353535] hover:bg-[#1F1F1F] hover:text-[#D4AF37] transition-all p-3 rounded-full">
+<span class="material-symbols-outlined">tune</span>
+<span class="font-['Manrope'] uppercase tracking-[0.1em] text-[8px]">Settings</span>
+</button>
+</nav>
+<div class="mt-auto">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-primary overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a sophisticated man with a groomed beard in a charcoal suit, soft studio lighting on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBLNdzmjmOXFwBsJkTQdJ2Gict8na0Hs4EDNCt_VWO9avo1pzG7M9b_50jmy4_hRV6akHrYvb7lzWc5hfJqrgVG-7Ea9jrOBh23EWyznzPd6tV50ShPfxObGnEHgDqnsdpgDRDiISjH81cRw0GXj8VyrOyZRl1fDHUhhDRhDXxP5GhE-2lZ_g0Xb6Ia0wnlSKwv65Tm6MxJGVRR3Gm7rrwD9PVgfedGPuq1dCtG5LInuF8mtrKqn0mLSyXUWVBiAjzgSgfayAEDfw"/>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col relative">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 right-0 left-0 md:left-24 z-50 bg-[#131313]/70 backdrop-blur-3xl px-8 md:px-12 py-6 flex justify-between items-center">
+<div class="flex items-center gap-4">
+<h1 class="font-['Noto_Serif'] tracking-tight text-2xl font-serif italic text-[#F2CA50] cursor-pointer" routerLink="/">LuxeVoyage</h1>
+<span class="h-4 w-[1px] bg-outline-variant/30"></span>
+<span class="font-label uppercase tracking-widest text-[10px] text-secondary">AI Concierge</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-8 items-center mr-8">
+<a class="text-[#A0A0A0] font-['Noto_Serif'] tracking-tight hover:text-[#F2CA50] transition-colors duration-300" routerLink="/destinations">Destinations</a>
+<a class="text-[#A0A0A0] font-['Noto_Serif'] tracking-tight hover:text-[#F2CA50] transition-colors duration-300" href="#">Experiences</a>
+<a class="text-[#A0A0A0] font-['Noto_Serif'] tracking-tight hover:text-[#F2CA50] transition-colors duration-300" routerLink="/fleet">The Fleet</a>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Chat Container -->
+<section class="flex-1 max-w-4xl w-full mx-auto px-6 pt-32 pb-40 flex flex-col gap-12">
+<!-- System/AI Introduction -->
+<div class="flex flex-col items-center text-center mb-4">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<h2 class="serif text-2xl text-on-surface">Good evening, Julian.</h2>
+<p class="text-secondary/60 text-sm max-w-xs mt-2">I am your digital concierge. Where shall we transcend to next?</p>
+</div>
+<!-- User Message -->
+<div class="flex flex-col items-end group">
+<div class="max-w-[80%] bg-surface-container text-on-surface px-6 py-4 rounded-2xl rounded-tr-none shadow-sm">
+<p class="text-md leading-relaxed font-light">I'm looking for a secluded Amalfi Coast escape. Somewhere away from the crowds, private terrace with a view, and perhaps access to a hidden beach.</p>
+</div>
+<span class="text-[10px] uppercase tracking-widest text-outline mt-2 px-1">18:42</span>
+</div>
+<!-- AI Message -->
+<div class="flex flex-col items-start gap-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<span class="text-[10px] uppercase tracking-widest text-primary">Concierge Selection</span>
+</div>
+<div class="max-w-[90%] flex flex-col gap-8">
+<!-- AI Text bubble -->
+<div class="bg-surface-container-low border-l border-primary/30 pl-8 py-2">
+<p class="serif text-xl md:text-2xl text-on-surface leading-snug">
+                            The Amalfi Coast is a tapestry of vertical beauty. For true seclusion, I have curated a selection in <span class="italic text-primary">Praiano</span>. Unlike its bustling neighbors, Praiano retains an air of quiet nobility.
+                        </p>
+<p class="text-secondary/80 mt-4 leading-relaxed font-light">
+                            I recommend the <span class="text-on-surface font-medium">Villa Gocce di Mare</span>. It is a restored 17th-century monastery perched on a private cliffside.
+                        </p>
+</div>
+<!-- Itinerary Snippet Card -->
+<div class="w-full bg-surface-container-high rounded-xl overflow-hidden shadow-[0_40px_40px_-15px_rgba(0,0,0,0.15)] group transition-all duration-500">
+<div class="h-64 overflow-hidden relative">
+<img alt="Amalfi Coast Villa" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Dramatic view of a white luxury villa with stone arches built into a steep limestone cliff overlooking the turquoise Tyrrhenian Sea at sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArDYMJEFzZmnsSfLyiyjcbpp4Eu20BrU-Jf0Y8G1507plzxpvAUfM4_K9R4dC4ywtfhfkijmC9Rwso89rkUsJtqqnJ25VHwDEjKrXSrbxpmelEvel34o7smf8LwJpAfHE7A3WtjqIV-q4cAf8zRN9GwDrmGdMVgSHn1xVlP3kTGCoDPlUt4oEv0A_wYjRN4CTJYzJqBMVc5MHlTFFMtAAC3FOhxcMHYZNIr-nBV4poLrNEYlnnxd2XalR8uacmBPV76H67qQWhGEU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-high via-transparent to-transparent"></div>
+<div class="absolute top-4 right-4 bg-primary text-on-primary px-3 py-1 rounded-full text-[10px] font-bold tracking-tighter uppercase">Exclusive Portfolio</div>
+</div>
+<div class="p-8">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="serif text-2xl text-on-surface mb-1">Villa Gocce di Mare</h3>
+<p class="text-primary text-[10px] tracking-widest uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-xs">location_on</span> Praiano, Italy
+                                    </p>
+</div>
+<div class="text-right">
+<span class="block text-[10px] uppercase tracking-widest text-outline">Starting at</span>
+<span class="text-2xl serif text-on-surface">€2,400<span class="text-sm font-sans text-outline ml-1">/night</span></span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 border-t border-white/5 pt-6">
+<div>
+<span class="text-[10px] uppercase tracking-[0.2em] text-outline block mb-2">Amenities</span>
+<ul class="text-sm text-secondary flex flex-col gap-2">
+<li class="flex items-center gap-2 font-light italic"><span class="w-1 h-1 rounded-full bg-primary/50"></span> Private Funicular to Beach</li>
+<li class="flex items-center gap-2 font-light italic"><span class="w-1 h-1 rounded-full bg-primary/50"></span> Saltwater Infinity Pool</li>
+<li class="flex items-center gap-2 font-light italic"><span class="w-1 h-1 rounded-full bg-primary/50"></span> Personal Michelin-Starred Chef</li>
+</ul>
+</div>
+<div>
+<span class="text-[10px] uppercase tracking-[0.2em] text-outline block mb-2">Seclusion Rating</span>
+<div class="flex gap-1 text-primary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-[10px] mt-2 text-secondary/60">Zero tourist foot traffic within 500m</p>
+</div>
+</div>
+<button class="w-full mt-8 bg-gradient-to-r from-primary to-primary-container text-on-primary py-4 rounded-lg text-[10px] uppercase tracking-[0.2em] font-bold hover:shadow-lg hover:shadow-primary/10 transition-all active:scale-95">
+                                Curate This Experience
+                            </button>
+</div>
+</div>
+<div class="text-secondary/80 text-sm leading-relaxed max-w-lg font-light italic">
+                        "Would you like me to reserve our private Riva yacht for your arrival at the Naples port, or shall I arrange a helicopter transfer directly to the villa's private pad?"
+                    </div>
+</div>
+</div>
+</section>
+<!-- Input Area Shell -->
+<div class="fixed bottom-0 right-0 left-0 md:left-24 px-6 pb-10 pt-4 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest to-transparent">
+<div class="max-w-3xl mx-auto relative">
+<!-- Floating Tools -->
+<div class="flex gap-4 mb-4 justify-center">
+<button class="bg-surface-container-high hover:bg-surface-container-highest text-secondary text-[10px] uppercase tracking-widest px-4 py-2 rounded-full border border-white/5 transition-all">
+                        Private Air
+                    </button>
+<button class="bg-surface-container-high hover:bg-surface-container-highest text-secondary text-[10px] uppercase tracking-widest px-4 py-2 rounded-full border border-white/5 transition-all">
+                        Michelin Dining
+                    </button>
+<button class="bg-surface-container-high hover:bg-surface-container-highest text-secondary text-[10px] uppercase tracking-widest px-4 py-2 rounded-full border border-white/5 transition-all">
+                        Yacht Charters
+                    </button>
+</div>
+<!-- Main Input Field -->
+<div class="relative flex items-center bg-surface-container rounded-2xl p-2 shadow-2xl border border-white/5">
+<button class="p-3 text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline/50 text-sm px-4 outline-none" placeholder="Type your desires here..." type="text"/>
+<button class="bg-primary text-on-primary px-6 py-3 rounded-xl flex items-center gap-2 group transition-all hover:pr-8">
+<span class="text-[10px] uppercase tracking-[0.2em] font-bold">Curate</span>
+<span class="material-symbols-outlined text-sm transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+</div>
+<p class="text-[9px] text-center mt-4 text-outline/40 uppercase tracking-[0.3em]">LuxeVoyage AI Agent • Precision Travel Intelligence</p>
+</div>
+</div>
+</main>
+<!-- Bottom Nav for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface-container border-t border-white/5 flex items-center justify-around z-[60]">
+<button class="text-primary flex flex-col items-center gap-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+</button>
+<button class="text-outline flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">auto_awesome_motion</span>
+</button>
+<button class="text-outline flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button class="text-outline flex flex-col items-center gap-1">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</nav>
+</body>

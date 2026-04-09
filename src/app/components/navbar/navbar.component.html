@@ -1,0 +1,18 @@
+<header *ngIf="showNavbar" class="fixed top-0 w-full z-50 bg-neutral-950/70 backdrop-blur-xl shadow-2xl shadow-black/20 px-12 py-6 flex justify-between items-center w-full">
+<div class="text-2xl font-serif italic text-amber-500 tracking-widest cursor-pointer" routerLink="/">LuxeVoyage</div>
+<nav class="hidden md:flex items-center space-x-10">
+<a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 cubic-bezier-transition" routerLink="/destinations" routerLinkActive="text-amber-500 border-b border-amber-500/30 pb-1">Destinations</a>
+<a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 cubic-bezier-transition" routerLink="/fleet" routerLinkActive="text-amber-500 border-b border-amber-500/30 pb-1">The Elite Fleet</a>
+<a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 cubic-bezier-transition" routerLink="/hotels" routerLinkActive="text-amber-500 border-b border-amber-500/30 pb-1">Luxury Hotels</a>
+</nav>
+<div class="flex items-center space-x-6">
+<button class="text-neutral-500 hover:text-amber-400 cubic-bezier-transition">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">search</span>
+</button>
+<div class="hidden lg:flex items-center space-x-4">
+<button class="font-sans uppercase tracking-[0.2em] text-[10px] text-neutral-400 hover:text-amber-500 cubic-bezier-transition" routerLink="/vip">VIP Membership</button>
+<button routerLink="/signup" class="bg-primary text-on-primary px-6 py-2 rounded-lg font-label text-[12px] uppercase tracking-widest font-bold hover:scale-105 cubic-bezier-transition shadow-lg shadow-primary/10">Book Now</button>
+</div>
+<img alt="User Profile" class="w-10 h-10 rounded-full border border-outline-variant/30 object-cover" data-alt="Close-up portrait of a sophisticated man in a dark tailored suit, soft cinematic lighting with warm golden undertones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACwzx3MfYxK0QtChAle8l8bGOQzulV9ugcih4MMvLZS2J4aSS7dCvwgjCpcxKCL6pgrHgL3edm3QnBrmsaiIOj-7hUp0_AgUqe3I-mYWH5qo3Ctm7a1xS0lLkPW2j0zrboX4QlZioDwiZqHG2Z3n9ixx-nwvdgpSHrRaa69sw01zYTucmwxGsCCJLrgDQAkax3oR2Q08Fv_2GPD40YRPAS_ArUkqggFMmr6vI75rMRuOz_a_S4U0lZ_Q0g7IgdeO73-MvD1hZin_4"/>
+</div>
+</header>

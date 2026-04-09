@@ -1,0 +1,308 @@
+<!-- Hero Section -->
+<header class="relative min-h-[600px] h-screen w-full flex items-center justify-center">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="cinematic wide shot of a sleek private jet flying over crystal clear turquoise ocean and white sand tropical islands at sunrise" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg1vfp0mPgCg_zNv_ghRzM0_qW1JBcfn1ar-cFcPcH_udX9zyHsGULU1ahRp1VrsXZcsDeLZd6xDSTiYEDHJ3eXBndMOQvpecUjBs6J7TjJPMYX-7D6cPOnHjGHQ5HdGV1ogKyLy4rDdHNzuSv9XLZP_DdUDTitNZFYxUKeQs8fTFF7wM-UijkjZkc5wS5Tmeo-Rn0KkosHk5GzNp1lJBjSeqNACnGsPvFbZ0XwWBGIOZURQh22MWGhfXGHWKuStz4uOgCOS2DbQ0"/>
+<div class="absolute inset-0 hero-gradient"></div>
+</div>
+<div class="relative z-10 text-center px-4 w-full max-w-5xl pt-24">
+<span class="label-md uppercase tracking-[0.3em] text-primary mb-6 block font-medium tracking-widest text-[11px]">Elevated Travel</span>
+<h1 class="font-headline text-5xl md:text-8xl text-white mb-12 tracking-tighter leading-none text-shadow-lg">
+                The World, <br/><span class="italic font-normal">Precisely Curated.</span>
+</h1>
+<!-- Search Bar -->
+<div class="bg-surface-container-high/40 backdrop-blur-2xl p-2 rounded-xl flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-white/10 relative">
+<div class="flex-1 w-full flex items-center px-6 py-4 border-b md:border-b-0 md:border-r border-outline-variant/30 hover:bg-surface-bright/20 transition-colors rounded-l-lg cursor-pointer">
+<span class="material-symbols-outlined text-primary mr-3 text-[22px]" data-icon="location_on">location_on</span>
+<div class="text-left w-full">
+<label class="block text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-1">Destination</label>
+<input class="bg-transparent border-none p-0 text-white placeholder-neutral-500 focus:ring-0 w-full text-sm font-light decoration-transparent" placeholder="Maldives, St. Tropez, Alps..." type="text"/>
+</div>
+</div>
+<div class="flex-1 w-full flex items-center px-6 py-4 border-b md:border-b-0 md:border-r border-outline-variant/30 hover:bg-surface-bright/20 transition-colors cursor-pointer relative" (click)="toggleDatePicker()">
+<span class="material-symbols-outlined text-primary mr-3 text-[22px]" data-icon="calendar_month">calendar_month</span>
+<div class="text-left w-full">
+<label class="block text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-1">Dates</label>
+<input readonly class="bg-transparent border-none p-0 text-white focus:ring-0 w-full text-sm font-light cursor-pointer select-none" [value]="dateDisplay" type="text"/>
+</div>
+
+<!-- Date Picker Dropdown -->
+<div *ngIf="showDatePicker" class="absolute top-full left-0 mt-6 w-80 bg-surface-container-highest/95 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl p-6 z-50 transform origin-top" (click)="$event.stopPropagation()">
+    <div class="absolute -top-3 left-10 w-6 h-6 bg-surface-container-highest/95 border-t border-l border-white/10 transform rotate-45"></div>
+    <div class="relative z-10">
+        <div class="flex justify-between items-center mb-6">
+            <span class="text-white font-bold tracking-[0.2em] text-[11px] uppercase">November 2026</span>
+            <div class="flex gap-3">
+                <button class="text-neutral-500 hover:text-primary transition-colors flex"><span class="material-symbols-outlined text-sm">west</span></button>
+                <button class="text-neutral-500 hover:text-primary transition-colors flex"><span class="material-symbols-outlined text-sm">east</span></button>
+            </div>
+        </div>
+        <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-4">
+            <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div class="grid grid-cols-7 gap-y-3 gap-x-2 text-center text-sm font-medium text-white">
+            <span class="text-neutral-600">25</span><span class="text-neutral-600">26</span><span class="text-neutral-600">27</span><span class="text-neutral-600">28</span><span class="text-neutral-600">29</span><span class="text-neutral-600">30</span><span class="text-neutral-600">31</span>
+            <span *ngFor="let day of days"
+                  (click)="selectDate(day)"
+                  [ngClass]="{
+                     'bg-primary/20 text-primary font-bold shadow-[inset_0_0_10px_rgba(242,202,80,0.5)]': day === checkInDate || day === checkOutDate,
+                     'bg-primary/10 text-primary': checkInDate !== null && checkOutDate !== null && day > checkInDate && day < checkOutDate,
+                     'hover:bg-primary/20 hover:text-primary transition-colors': day !== checkInDate && day !== checkOutDate
+                  }"
+                  class="cursor-pointer w-8 h-8 flex items-center justify-center rounded-full mx-auto">
+                {{day}}
+            </span>
+        </div>
+    </div>
+</div>
+</div>
+<div class="flex-1 w-full flex items-center px-6 py-4 hover:bg-surface-bright/20 transition-colors cursor-pointer relative" (click)="toggleGuestsPicker()">
+<span class="material-symbols-outlined text-primary mr-3 text-[22px]" data-icon="person">person</span>
+<div class="text-left w-full">
+<label class="block text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-1">Guests</label>
+<input readonly class="bg-transparent border-none p-0 text-white focus:ring-0 w-full text-sm font-light cursor-pointer select-none" [value]="totalGuests" type="text"/>
+</div>
+
+<!-- Guest Counter Dropdown -->
+<div *ngIf="showGuestsPicker" class="absolute top-full right-0 mt-6 w-80 bg-surface-container-highest/95 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl p-6 z-50" (click)="$event.stopPropagation()">
+    <div class="absolute -top-3 right-10 w-6 h-6 bg-surface-container-highest/95 border-t border-l border-white/10 transform rotate-45"></div>
+    <div class="relative z-10 space-y-6">
+        <!-- Adults -->
+        <div class="flex justify-between items-center">
+            <div>
+                 <span class="block text-white text-sm font-bold tracking-wide">Adults</span>
+                 <span class="block text-neutral-500 text-[10px] uppercase tracking-widest mt-1">Ages 13 or above</span>
+            </div>
+            <div class="flex items-center gap-4">
+                 <button (click)="decrementGuest('adults')" class="w-8 h-8 rounded-full border border-white/20 text-neutral-400 flex items-center justify-center hover:border-primary hover:text-primary transition-all bg-surface-container-low/50"><span class="material-symbols-outlined text-[16px]">remove</span></button>
+                 <span class="text-white font-bold w-4 text-center">{{guests.adults}}</span>
+                 <button (click)="incrementGuest('adults')" class="w-8 h-8 rounded-full border border-white/20 text-neutral-400 flex items-center justify-center hover:border-primary hover:text-primary transition-all bg-surface-container-low/50"><span class="material-symbols-outlined text-[16px]">add</span></button>
+            </div>
+        </div>
+        <div class="h-px w-full bg-white/5"></div>
+        <!-- Children -->
+        <div class="flex justify-between items-center">
+            <div>
+                 <span class="block text-white text-sm font-bold tracking-wide">Children</span>
+                 <span class="block text-neutral-500 text-[10px] uppercase tracking-widest mt-1">Ages 2-12</span>
+            </div>
+            <div class="flex items-center gap-4">
+                 <button (click)="decrementGuest('children')" class="w-8 h-8 rounded-full border border-white/20 text-neutral-400 flex items-center justify-center hover:border-primary hover:text-primary transition-all bg-surface-container-low/50"><span class="material-symbols-outlined text-[16px]">remove</span></button>
+                 <span class="text-white font-bold w-4 text-center">{{guests.children}}</span>
+                 <button (click)="incrementGuest('children')" class="w-8 h-8 rounded-full border border-white/20 text-neutral-400 flex items-center justify-center hover:border-primary hover:text-primary transition-all bg-surface-container-low/50"><span class="material-symbols-outlined text-[16px]">add</span></button>
+            </div>
+        </div>
+        <div class="h-px w-full bg-white/5"></div>
+        <!-- Infants -->
+        <div class="flex justify-between items-center">
+            <div>
+                 <span class="block text-white text-sm font-bold tracking-wide">Infants</span>
+                 <span class="block text-neutral-500 text-[10px] uppercase tracking-widest mt-1">Under 2</span>
+            </div>
+            <div class="flex items-center gap-4">
+                 <button (click)="decrementGuest('infants')" class="w-8 h-8 rounded-full border border-white/20 text-neutral-400 flex items-center justify-center hover:border-primary hover:text-primary transition-all bg-surface-container-low/50"><span class="material-symbols-outlined text-[16px]">remove</span></button>
+                 <span class="text-white font-bold w-4 text-center">{{guests.infants}}</span>
+                 <button (click)="incrementGuest('infants')" class="w-8 h-8 rounded-full border border-white/20 text-neutral-400 flex items-center justify-center hover:border-primary hover:text-primary transition-all bg-surface-container-low/50"><span class="material-symbols-outlined text-[16px]">add</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<button class="w-full md:w-auto h-full min-h-[72px] bg-primary text-on-primary px-10 py-5 md:py-0 md:rounded-r-xl rounded-b-xl md:rounded-bl-none font-bold tracking-widest uppercase text-xs hover:bg-primary-container transition-all shadow-[inset_0_0_20px_rgba(255,255,255,0.3)]">
+                    Search
+                </button>
+</div>
+</div>
+</header>
+<!-- Top Destinations - Bento Grid -->
+<section class="py-32 px-12 bg-surface">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+<div class="max-w-2xl">
+<span class="label-md uppercase tracking-[0.2em] text-primary mb-4 block">Seasonal Edit</span>
+<h2 class="font-headline text-5xl text-white">Top Destinations</h2>
+</div>
+<a class="text-primary border-b border-primary/30 pb-1 uppercase tracking-widest text-xs font-bold hover:border-primary transition-all" href="#">View All Selections</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 h-[800px]">
+<div class="md:col-span-8 relative overflow-hidden rounded-xl group cursor-pointer shadow-2xl">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="luxury overwater bungalows in maldives with vibrant turquoise water and palm trees at dusk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXZEq4p-HEydWD_Gw5pSWvjpko8YfgNoRaDY3T2qGWGVH5W4dq9kldgQKDhQg-lWWlN0DoC9IWuH8XO-EDDM6IWzsulfdS13rUXfeQ6-IoiUI1-n9eddt157so-QCZdwjmSHzi9mgrfEYtfyqDO41UEdnf5jbidFWkPDpzwEGvdpc_ICPb1yZE7H_SO0QQ5RxWlZ0cwo1SZGyLtQ0CPFtTY8IEOZxmkQFUMZjKuQ_WE5Bp9DaIEl-1OlzE0PsNDBU1apTvKlLYs2Y"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-10 left-10">
+<h3 class="font-headline text-4xl text-white mb-2">Maldives</h3>
+<p class="text-neutral-300 tracking-wide">Pure Serenity in the Indian Ocean</p>
+</div>
+</div>
+<div class="md:col-span-4 grid grid-rows-2 gap-8">
+<div class="relative overflow-hidden rounded-xl group cursor-pointer shadow-2xl">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="iconic london bridge at night with city lights reflecting in the Thames river" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuE1z7XqIzlPAXmBWq-iR_koMXV8JXEqu7La1bFZ_C4q_PbjQmEXZSQyPt6bMnBp6E0YhDjyNCQsBIbZ-FKPX_k5q1sq5BdVCVfyMnoIVANo9-YqwoFeiiHGymOtjxpz20_iQlYQx0-KIkBVNuGYXfYLUNH7ouTWdClojY8izZ8nnxICXxfW9k_WTBqdQwInCsKh_US6NdJoSCuYTG6CXyANRKwMK3taRYjG89VJiz_jfj0DF-HPoWjthLa41a7t2Q9kHjTJ-ujM4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6">
+<h3 class="font-headline text-2xl text-white mb-1">London</h3>
+<p class="text-neutral-400 text-xs uppercase tracking-widest">Heritage &amp; Style</p>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-xl group cursor-pointer shadow-2xl">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="venice canals with historic architecture and gondolas under a warm sunset sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPcZio6PmM6wz2FuTieg1GKiOCu9iSVO1WMLBRdFIipusoJVZThNyEBe8fDwKyr7ffbbTgYGzvV9NnDckDFPateicsY1f83qZZB9XlLAAHpjxXk-g9qbqxS2fdH9G6Svl4p_d4IxthBylHK1EtCL6UEhgZ2a35W5SRgWQa5yKAhr0c9BBZHH2zd3db8d3VKTY4Wmxk8PUCn42vquFZe7UeUqs7nejmODgQO1RDpJY346JwxeavuaklMALKBUr_RdT1y4dywm1yDwk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6">
+<h3 class="font-headline text-2xl text-white mb-1">Venice</h3>
+<p class="text-neutral-400 text-xs uppercase tracking-widest">Floating Elegance</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Luxury Hotels - Cinematic Layout Slider -->
+<section class="py-32 bg-surface-container-lowest relative">
+<div class="px-12 mb-20 flex flex-col md:flex-row justify-between items-end gap-8">
+    <div class="text-left w-full md:w-auto">
+        <span class="label-md uppercase tracking-[0.2em] text-primary mb-4 block">The Collections</span>
+        <h2 class="font-headline text-5xl text-white mb-6">Luxury Hotels</h2>
+        <p class="text-neutral-400 max-w-xl">Selected for their architectural significance, impeccable service, and unique sense of place.</p>
+    </div>
+    <div class="flex gap-4">
+        <button (click)="scrollHotels('left')" class="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-primary/20 hover:text-primary hover:border-primary transition-all duration-300">
+            <span class="material-symbols-outlined text-2xl">west</span>
+        </button>
+        <button (click)="scrollHotels('right')" class="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-primary/20 hover:text-primary hover:border-primary transition-all duration-300">
+            <span class="material-symbols-outlined text-2xl">east</span>
+        </button>
+    </div>
+</div>
+<div #hotelSlider class="flex overflow-x-auto gap-12 px-12 pb-12 no-scrollbar scroll-smooth snap-x snap-mandatory">
+<!-- Hotel Card 1 -->
+<div class="min-w-[450px] group cursor-pointer snap-start">
+<div class="aspect-[3/4] overflow-hidden rounded-xl mb-6 relative shadow-2xl">
+<img class="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 group-hover:brightness-110" data-alt="grand french chateau hotel courtyard with manicured gardens and classical stone architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhzDEg4ubzErkrheWuHXyhzzFzosW4iiBXa05Ucq2WCPVNQZAPGyciwYQgNmJMThDCele_3-1nVSpiJdy14U0-MTcahsYXWufeZdhm6fFF6WI0E6PKSog7Z1rv3lyHdCbeUbgP9msQttxWbnuNmfwV00s7wIyhkIoul3xqqvsCHNrb9M2B2X2hCEnj9RZoLKpDJ4O6kJArTsuA1xt7o50RSffVE1ADXv_fR7mc96yRaTpjHyQ0U5CVxa0N58-cxCkUAbGfJwzrUtY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+<div class="absolute top-6 right-6 bg-surface-container-highest/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+<span class="text-xs font-bold tracking-widest text-primary italic">LUXURY VERIFIED</span>
+</div>
+<div class="absolute bottom-6 left-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+    <button class="bg-primary text-on-primary px-6 py-2 rounded font-bold uppercase tracking-widest text-xs">View Suite</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-2xl text-white mb-1 group-hover:text-primary transition-colors">Aman Residences</h3>
+<p class="text-neutral-500 uppercase tracking-widest text-[10px]">St. Tropez, France</p>
+</div>
+<span class="text-primary font-bold tracking-tighter text-xl">₹1,13,450<span class="text-[10px] text-neutral-500 font-normal uppercase tracking-normal ml-1">/ Night</span></span>
+</div>
+</div>
+<!-- Hotel Card 2 -->
+<div class="min-w-[450px] group cursor-pointer snap-start">
+<div class="aspect-[3/4] overflow-hidden rounded-xl mb-6 relative shadow-2xl">
+<img class="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 group-hover:brightness-110" data-alt="ultra modern minimal hotel room with floor to ceiling windows overlooking the swiss alps" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRZeghK6FYclqtxlSBEskxPEjZTA0a3qgrgSebLclErJ4ocpDE1PKseffDJ65gHinnAXVmDcZZtWTBoUl_LeUuY5VfLcS9TrSv5pWkD6Xw5aQznYX9D36afxkZUcf_a1mD9tN24BqZhNNr1nE2Argu4QrLZmXnOJGjqPKY_G5mnzx7Q06LA7oER_-3E-jz62GxmkJOzrI9FPlcfs1l1e2u95u-bEC2LFUtPQ5P8pjNwIKljaWqKxIQQPQ42a2jhqRwz_Y7e1N5B5U"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+<div class="absolute top-6 right-6 bg-surface-container-highest/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+<span class="text-xs font-bold tracking-widest text-primary italic">LUXURY VERIFIED</span>
+</div>
+<div class="absolute bottom-6 left-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+    <button class="bg-primary text-on-primary px-6 py-2 rounded font-bold uppercase tracking-widest text-xs">View Suite</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-2xl text-white mb-1 group-hover:text-primary transition-colors">The Alpine Lodge</h3>
+<p class="text-neutral-500 uppercase tracking-widest text-[10px]">Zermatt, Switzerland</p>
+</div>
+<span class="text-primary font-bold tracking-tighter text-xl">₹1,85,100<span class="text-[10px] text-neutral-500 font-normal uppercase tracking-normal ml-1">/ Night</span></span>
+</div>
+</div>
+<!-- Hotel Card 3 -->
+<div class="min-w-[450px] group cursor-pointer snap-start">
+<div class="aspect-[3/4] overflow-hidden rounded-xl mb-6 relative shadow-2xl">
+<img class="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 group-hover:brightness-110" data-alt="infinity pool at a high-end bali resort overlooking lush jungle canopy at morning mist" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_1mtUko6XL042h8nRHq-d35JfByX4j1halrBAcktMAZ32Ftzm13OImFLsxCHKPbik_PFpO-3OKfLUP96VdHfOC1uhH4KpfIZQdbmeNZMAOUAaD_0zl7iaoVTbWbeHjGeLbEsKYtnOKx9EEIzBOXVOJsSMUmxqNjcPsvPK_fGcy-_29ObAL9vYGP7HRhg0ZDjB5lYN0MFKaqckEmCz_5qqSev0P_mS1xDygAiZQ0EKztLPDk75v7DdOoNvxUKXVgPxVgFSgOf6eUk"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+<div class="absolute top-6 right-6 bg-surface-container-highest/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+<span class="text-xs font-bold tracking-widest text-primary italic">LUXURY VERIFIED</span>
+</div>
+<div class="absolute bottom-6 left-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+    <button class="bg-primary text-on-primary px-6 py-2 rounded font-bold uppercase tracking-widest text-xs">View Suite</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-2xl text-white mb-1 group-hover:text-primary transition-colors">Jungle Retreat</h3>
+<p class="text-neutral-500 uppercase tracking-widest text-[10px]">Ubud, Indonesia</p>
+</div>
+<span class="text-primary font-bold tracking-tighter text-xl">₹78,980<span class="text-[10px] text-neutral-500 font-normal uppercase tracking-normal ml-1">/ Night</span></span>
+</div>
+</div>
+<!-- Hotel Card 4 -->
+<div class="min-w-[450px] group cursor-pointer snap-start">
+<div class="aspect-[3/4] overflow-hidden rounded-xl mb-6 relative shadow-2xl">
+<img class="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 group-hover:brightness-110" data-alt="overwater bungalow interior with glass floor in bora bora luxury resort" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3UmhoTg8y1SOody5UnLRS0PoXyRRom9V-qqVL7rc8yjgxeAjKxD_qxmbkG-OgLrx-Ikf9tGWIfg8xjTVXJpGb1Jve6EeVWkiW8FywYDmNW9Z8L2LUhqds0A5qPPriM7mndBExJCNbNrY280_W8n8BDkunlq-A_rU00cPwENONI8AzCQlkpLA8MxPGNfxPjl2_Q7FZ4T0Z8xQRPyu4zucl33nilxbEhM-eOv3SJaNU2d7IezEHL_xsTZfUKXa9ZwzZHgcfZ4M_NIY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+<div class="absolute top-6 right-6 bg-surface-container-highest/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+<span class="text-xs font-bold tracking-widest text-primary italic">LUXURY VERIFIED</span>
+</div>
+<div class="absolute bottom-6 left-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+    <button class="bg-primary text-on-primary px-6 py-2 rounded font-bold uppercase tracking-widest text-xs">View Suite</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-2xl text-white mb-1 group-hover:text-primary transition-colors">Elysian Atoll</h3>
+<p class="text-neutral-500 uppercase tracking-widest text-[10px]">Maldives</p>
+</div>
+<span class="text-primary font-bold tracking-tighter text-xl">₹4,25,800<span class="text-[10px] text-neutral-500 font-normal uppercase tracking-normal ml-1">/ Night</span></span>
+</div>
+</div>
+<!-- Hotel Card 5 -->
+<div class="min-w-[450px] group cursor-pointer snap-start">
+<div class="aspect-[3/4] overflow-hidden rounded-xl mb-6 relative shadow-2xl">
+<img class="w-full h-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-105 group-hover:brightness-110" data-alt="architectural masterpiece modern hotel embedded in coastal cliffs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzWb3PA49GsNg80iTcVqRBHzWtEeNSoOh74ADrv-HszCVWG_1iXjnjfCP49PtHsBiAQfQMCCjeOnILF-gjF6kB6Dm63v5WnqW1KL2zSjolOqXADsBDTBYrKrnQfk8JppqmOTeZFgy-m04tfIh8GsB1dQKV3YW0-N8RQ8ZHNhB-BuUvwL6mB3X2sE0RmTpXcCnDhtnW44--7ej323LofAR2V6JInBTai7vvksbS2KSu2RhtWGNu7pxq-i6ajsxLEINoFPM6EHNbvts"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+<div class="absolute top-6 right-6 bg-surface-container-highest/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+<span class="text-xs font-bold tracking-widest text-primary italic">LUXURY VERIFIED</span>
+</div>
+<div class="absolute bottom-6 left-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+    <button class="bg-primary text-on-primary px-6 py-2 rounded font-bold uppercase tracking-widest text-xs">View Suite</button>
+</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline text-2xl text-white mb-1 group-hover:text-primary transition-colors">Azure Sands</h3>
+<p class="text-neutral-500 uppercase tracking-widest text-[10px]">Amalfi, Italy</p>
+</div>
+<span class="text-primary font-bold tracking-tighter text-xl">₹2,10,450<span class="text-[10px] text-neutral-500 font-normal uppercase tracking-normal ml-1">/ Night</span></span>
+</div>
+</div>
+
+</div>
+</section>
+<!-- Exclusive Deals Section -->
+<section class="py-32 px-12 bg-surface">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+<div class="relative">
+<div class="relative z-10 rounded-xl overflow-hidden shadow-2xl">
+<img class="w-full aspect-video object-cover" data-alt="luxury yacht interior with gold accents and high-end mahogany furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQwKcW50Zw_LtN_AOsicteXFRdfAd4C2Sibd2FjDMOo1ZDSP99T1JDalffozp3iidAU7gnAy8DMGDEgQGD0pz3bUVH5qz3BjuT5ay2K8Ijk-wY5BNV1ofGhBsw5AJpPv4c4Xb45cnB4M8lK8VZJelHP8JeIAZg-iLPGkTUcfXJWnofO7aODdR-1OGwszwjOUxFZgHTlTKJ9a6W0b-oD2wFt-DPSQOWGAmqNVC-zHdwt3FNgtV3g0IJIFuBhs7x8AzBfQnATS33TKI"/>
+</div>
+<div class="absolute -bottom-10 -right-10 w-64 h-64 bg-primary/10 rounded-full blur-3xl z-0"></div>
+<div class="absolute top-10 left-10 bg-surface-container-high/90 backdrop-blur-xl p-8 rounded-xl border border-white/5 shadow-2xl z-20 max-w-xs">
+<span class="text-primary text-4xl font-headline mb-2 block">15% Off</span>
+<p class="text-neutral-300 text-sm leading-relaxed">Book a Private Jet &amp; Villa package for stays longer than 10 nights.</p>
+</div>
+</div>
+<div class="space-y-8">
+<span class="label-md uppercase tracking-[0.2em] text-primary block">Exclusive Privileges</span>
+<h2 class="font-headline text-5xl text-white leading-tight">Curated Packages <br/>for the Discerning</h2>
+<p class="text-neutral-400 text-lg">Access unpublished rates and complimentary upgrades at the world's most prestigious properties. Our concierge team secures the impossible.</p>
+<div class="flex items-center gap-12 pt-6">
+<div class="flex flex-col gap-2">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="verified">verified</span>
+<span class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Luxury Verified</span>
+</div>
+<div class="flex flex-col gap-2">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="payments">payments</span>
+<span class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">Best Price Guarantee</span>
+</div>
+<div class="flex flex-col gap-2">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="concierge">concierge</span>
+<span class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold">24/7 Concierge</span>
+</div>
+</div>
+</div>
+</div>
+</section>

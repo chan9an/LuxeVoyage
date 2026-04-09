@@ -1,0 +1,75 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{html,ts}",
+  ],
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-error-container": "#ffdad6",
+        "primary": "#f2ca50",
+        "surface-container-lowest": "#0e0e0e",
+        "on-tertiary-container": "#454544",
+        "on-primary-fixed-variant": "#574500",
+        "on-primary-container": "#554300",
+        "tertiary-fixed-dim": "#c8c6c5",
+        "primary-container": "#d4af37",
+        "on-background": "#e2e2e2",
+        "surface-container": "#1f1f1f",
+        "inverse-surface": "#e2e2e2",
+        "tertiary-fixed": "#e5e2e1",
+        "secondary-container": "#524835",
+        "on-tertiary": "#313030",
+        "error-container": "#93000a",
+        "on-tertiary-fixed": "#1c1b1b",
+        "surface-container-high": "#2a2a2a",
+        "outline": "#99907c",
+        "tertiary-container": "#b4b2b2",
+        "on-surface": "#e2e2e2",
+        "on-secondary": "#382f1e",
+        "on-tertiary-fixed-variant": "#474746",
+        "primary-fixed": "#ffe088",
+        "inverse-on-surface": "#303030",
+        "secondary-fixed-dim": "#d3c5ad",
+        "on-error": "#690005",
+        "surface-container-low": "#1b1b1b",
+        "surface-variant": "#353535",
+        "primary-fixed-dim": "#e9c349",
+        "on-primary-fixed": "#241a00",
+        "tertiary": "#d0cdcd",
+        "surface-bright": "#393939",
+        "on-primary": "#3c2f00",
+        "surface-container-highest": "#353535",
+        "surface-tint": "#e9c349",
+        "outline-variant": "#4d4635",
+        "on-secondary-container": "#c5b79f",
+        "error": "#ffb4ab",
+        "surface-dim": "#131313",
+        "secondary-fixed": "#f0e0c8",
+        "on-secondary-fixed": "#221b0b",
+        "inverse-primary": "#735c00",
+        "secondary": "#d3c5ad",
+        "surface": "#131313",
+        "on-surface-variant": "#d0c5af",
+        "background": "#131313",
+        "on-secondary-fixed-variant": "#4f4533"
+      },
+      fontFamily: {
+        "headline": ["Noto Serif", "serif"],
+        "body": ["Manrope", "sans-serif"],
+        "label": ["Manrope", "sans-serif"]
+      },
+      borderRadius: {
+        "DEFAULT": "0.125rem",
+        "lg": "0.25rem",
+        "xl": "0.5rem",
+        "full": "0.75rem"
+      },
+    },
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/container-queries')
+  ],
+}
