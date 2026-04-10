@@ -1,0 +1,199 @@
+<main class="pt-20 pb-24 px-8 max-w-7xl mx-auto">
+<div class="mb-16">
+    <h1 class="serif text-4xl text-primary mb-2">Add New Property</h1>
+    <p class="text-on-surface-variant text-sm">Join the exclusive network of LuxeVoyage properties.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+<!-- Left Column: Tips -->
+<aside class="lg:col-span-4 space-y-8">
+<div class="bg-surface-container p-8 rounded-xl space-y-6">
+<h2 class="serif text-2xl text-primary">Mastering the Listing</h2>
+<p class="text-on-surface-variant leading-relaxed text-sm">Luxury is defined by the details. To appeal to our elite clientele, emphasize exclusivity, privacy, and bespoke services.</p>
+<div class="space-y-4">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary text-sm">verified</span>
+<div>
+<h4 class="text-xs font-bold uppercase tracking-wider mb-1">Visual Storytelling</h4>
+<p class="text-xs text-on-surface-variant">High-resolution cinematic photography increases booking rates by 40%.</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+
+<!-- Main Content Area: Form -->
+<section class="lg:col-span-8 space-y-12">
+    
+<div *ngIf="isSuccess" class="bg-green-500/10 border border-green-500/20 text-green-400 px-6 py-4 rounded-lg">
+    <p class="font-bold">Success!</p>
+    <p class="text-sm mt-1">Your property has been published. Redirecting to dashboard...</p>
+</div>
+
+<div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-lg text-sm mb-6">
+    {{ errorMessage }}
+</div>
+
+<form class="space-y-16" [formGroup]="propertyForm" (ngSubmit)="onSubmit()" *ngIf="!isSuccess">
+<!-- Basic Details -->
+<div class="space-y-8">
+<h3 class="serif text-3xl">Property Identity</h3>
+<div class="space-y-6">
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.2em] text-outline mb-2">Property Name</label>
+<input formControlName="propertyName" class="w-full bg-transparent border-0 border-b border-outline-variant py-4 serif text-4xl placeholder:text-surface-container-highest focus:ring-0 transition-all" placeholder="The Celestial Estate" type="text"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.2em] text-outline mb-2">Location / City</label>
+<div class="relative city-dropdown-container" #cityDropdownContainer>
+  <div class="relative">
+    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-sm pointer-events-none">location_on</span>
+    <input
+      #cityInput
+      [value]="citySearch"
+      (input)="onCityInput($event)"
+      (focus)="showCityDropdown = true"
+      class="w-full bg-surface-container-high border-0 border-b border-outline-variant py-3 pl-10 pr-10 rounded-t-lg focus:ring-0 text-on-surface"
+      placeholder="Search city..."
+      type="text"
+      autocomplete="off"
+    />
+    <span *ngIf="citySearch" (click)="selectCity(''); citySearch = ''" class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 text-sm cursor-pointer hover:text-white transition-colors">close</span>
+    <span *ngIf="!citySearch" class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 text-sm pointer-events-none">expand_more</span>
+  </div>
+  <!-- Dropdown list -->
+  <div *ngIf="showCityDropdown && filteredCities.length > 0"
+    class="absolute z-50 top-full left-0 right-0 bg-stone-900 border border-stone-700 rounded-b-lg shadow-2xl max-h-56 overflow-y-auto">
+    <button
+      *ngFor="let city of filteredCities"
+      type="button"
+      (click)="selectCity(city)"
+      class="w-full text-left px-4 py-2.5 text-sm text-stone-300 hover:bg-amber-500/10 hover:text-amber-400 transition-colors flex items-center gap-3">
+      <span class="material-symbols-outlined text-stone-600 text-sm">location_city</span>
+      {{ city }}
+    </button>
+  </div>
+  <div *ngIf="showCityDropdown && filteredCities.length === 0"
+    class="absolute z-50 top-full left-0 right-0 bg-stone-900 border border-stone-700 rounded-b-lg shadow-2xl px-4 py-3 text-sm text-stone-500">
+    No cities found
+  </div>
+</div>
+</div>
+<div class="group">
+<label class="block text-[10px] uppercase tracking-[0.2em] text-outline mb-2">Property Type</label>
+<select formControlName="propertyType" class="w-full bg-surface-container-high border-0 border-b border-outline-variant py-3 px-4 rounded-t-lg focus:ring-0 appearance-none text-on-surface">
+    <option *ngFor="let type of propertyTypeMap | keyvalue" [value]="type.key">{{ type.key }}</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Amenities -->
+<div class="space-y-8" formArrayName="amenities">
+<h3 class="serif text-3xl">Exclusive Amenities</h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+    <label *ngFor="let amenity of availableAmenities; let i = index" class="flex items-center gap-3 cursor-pointer group">
+        <div class="w-5 h-5 rounded border border-outline-variant group-hover:border-primary transition-colors flex items-center justify-center">
+            <input type="checkbox" [formControlName]="i" class="hidden peer"/>
+            <span class="material-symbols-outlined text-xs text-primary opacity-0 peer-checked:opacity-100">check</span>
+        </div>
+        <span class="text-sm font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">{{ amenity.label }}</span>
+    </label>
+</div>
+</div>
+
+<!-- Room Types Configurator -->
+<div class="space-y-8 mt-12" formArrayName="roomTypes">
+  <div class="flex justify-between items-end">
+      <h3 class="serif text-3xl">Room Configurator</h3>
+      <button type="button" (click)="addRoomType()" class="text-primary text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <span class="material-symbols-outlined text-sm">add</span> Add Room Type
+      </button>
+  </div>
+  
+  <div class="space-y-6">
+      <div *ngFor="let roomType of roomTypesArray.controls; let i = index" [formGroupName]="i" class="bg-surface-container-low border border-outline-variant/30 rounded-xl p-6 relative group/card">
+          
+          <button *ngIf="roomTypesArray.length > 1" type="button" (click)="removeRoomType(i)" class="absolute top-4 right-4 text-outline hover:text-red-400 transition-colors opacity-0 group-hover/card:opacity-100">
+              <span class="material-symbols-outlined">delete</span>
+          </button>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 mt-4">
+              <div class="group">
+                  <label class="block text-[10px] uppercase tracking-[0.2em] text-outline mb-2">Room Type Name</label>
+                  <input formControlName="name" class="w-full bg-surface-container-high border-0 border-b border-outline-variant py-3 px-4 rounded-t-lg focus:ring-0 text-on-surface hover:border-primary transition-colors" placeholder="E.g., Ocean View Suite" type="text" />
+              </div>
+              
+              <div class="group">
+                  <label class="block text-[10px] uppercase tracking-[0.2em] text-outline mb-2">Category</label>
+                  <select formControlName="category" class="w-full bg-surface-container-high border-0 border-b border-outline-variant py-3 px-4 rounded-t-lg focus:ring-0 appearance-none text-on-surface hover:border-primary transition-colors">
+                      <option *ngFor="let type of roomCategoryMap | keyvalue" [value]="type.key">{{ type.key }}</option>
+                  </select>
+              </div>
+              
+              <div class="group">
+                  <label class="block text-[10px] uppercase tracking-[0.2em] text-outline mb-2">Price Per Night (INR)</label>
+                  <input formControlName="pricePerNight" class="w-full bg-surface-container-high border-0 border-b border-outline-variant py-3 px-4 rounded-t-lg focus:ring-0 text-on-surface hover:border-primary transition-colors" placeholder="0" type="number" />
+              </div>
+              
+              <div class="group">
+                  <label class="block text-[10px] uppercase tracking-[0.2em] text-outline mb-2">Max Occupancy</label>
+                  <input formControlName="maxOccupancy" class="w-full bg-surface-container-high border-0 border-b border-outline-variant py-3 px-4 rounded-t-lg focus:ring-0 text-on-surface hover:border-primary transition-colors" placeholder="2" type="number" />
+              </div>
+          </div>
+          
+          <div class="group">
+              <label class="block text-[10px] uppercase tracking-[0.2em] text-outline mb-2 flex gap-2 items-center">
+                  Physical Rooms
+                  <span class="text-on-surface-variant/50 normal-case tracking-normal text-xs">(Comma separated room numbers, e.g., 101, 102, 103)</span>
+              </label>
+              <textarea formControlName="roomNumbers" class="w-full bg-surface-container-high border-0 border-b border-outline-variant py-3 px-4 rounded-t-lg focus:ring-0 text-on-surface leading-relaxed hover:border-primary transition-colors" placeholder="101, 102, 103..." rows="2"></textarea>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- Media Section -->
+<div class="space-y-8">
+<h3 class="serif text-3xl">Gallery Assets</h3>
+<div class="relative border-2 border-dashed border-outline-variant rounded-xl overflow-hidden bg-surface-container-low hover:bg-surface-container transition-all group min-h-[300px] flex items-center justify-center">
+    
+    <label class="absolute inset-0 z-10 cursor-pointer flex flex-col items-center justify-center gap-4" [class.bg-black/50]="selectedFilePreview">
+        <span class="material-symbols-outlined text-5xl text-outline-variant group-hover:text-primary transition-colors mix-blend-difference">cloud_upload</span>
+        <div class="text-center mix-blend-difference">
+            <p class="text-sm font-bold uppercase tracking-widest text-primary">{{ selectedFile ? 'Change Media' : 'Upload Cinematic Media' }}</p>
+            <p class="text-xs text-white/70 mt-2">{{ selectedFile?.name || 'Recommended: 4K resolution, 16:9 ratio' }}</p>
+        </div>
+        <input type="file" class="hidden" accept="image/*" (change)="onFileSelected($event)">
+    </label>
+
+    <img *ngIf="selectedFilePreview" [src]="selectedFilePreview" class="absolute inset-0 w-full h-full object-cover z-0" />
+</div>
+</div>
+
+<!-- Pricing -->
+<div class="space-y-8">
+<h3 class="serif text-3xl">Nightly Investment</h3>
+<div class="flex items-center gap-4 max-w-sm">
+<div class="bg-surface-container-high border-0 border-b border-outline-variant py-4 px-4 text-primary font-bold">
+    INR
+</div>
+<input formControlName="price" class="w-full bg-transparent border-0 border-b border-outline-variant py-4 text-3xl font-light tracking-tight focus:ring-0" placeholder="0.00" type="number"/>
+</div>
+</div>
+
+<!-- Actions -->
+<div class="flex justify-end pt-12 border-t border-outline-variant/20">
+    <button [disabled]="propertyForm.invalid || !selectedFile || isLoading" class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-12 py-5 rounded-lg font-bold uppercase tracking-[0.2em] text-xs shadow-lg hover:scale-[1.02] transition-transform flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed" type="submit">
+        {{ isLoading ? 'Publishing...' : 'Publish Property' }}
+        <span *ngIf="!isLoading" class="material-symbols-outlined text-sm">publish</span>
+    </button>
+</div>
+</form>
+</section>
+</div>
+</main>
+
+

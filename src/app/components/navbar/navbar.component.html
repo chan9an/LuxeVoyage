@@ -1,18 +1,95 @@
-<header *ngIf="showNavbar" class="fixed top-0 w-full z-50 bg-neutral-950/70 backdrop-blur-xl shadow-2xl shadow-black/20 px-12 py-6 flex justify-between items-center w-full">
-<div class="text-2xl font-serif italic text-amber-500 tracking-widest cursor-pointer" routerLink="/">LuxeVoyage</div>
-<nav class="hidden md:flex items-center space-x-10">
-<a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 cubic-bezier-transition" routerLink="/destinations" routerLinkActive="text-amber-500 border-b border-amber-500/30 pb-1">Destinations</a>
-<a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 cubic-bezier-transition" routerLink="/fleet" routerLinkActive="text-amber-500 border-b border-amber-500/30 pb-1">The Elite Fleet</a>
-<a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 cubic-bezier-transition" routerLink="/hotels" routerLinkActive="text-amber-500 border-b border-amber-500/30 pb-1">Luxury Hotels</a>
-</nav>
-<div class="flex items-center space-x-6">
-<button class="text-neutral-500 hover:text-amber-400 cubic-bezier-transition">
-<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">search</span>
-</button>
-<div class="hidden lg:flex items-center space-x-4">
-<button class="font-sans uppercase tracking-[0.2em] text-[10px] text-neutral-400 hover:text-amber-500 cubic-bezier-transition" routerLink="/vip">VIP Membership</button>
-<button routerLink="/signup" class="bg-primary text-on-primary px-6 py-2 rounded-lg font-label text-[12px] uppercase tracking-widest font-bold hover:scale-105 cubic-bezier-transition shadow-lg shadow-primary/10">Book Now</button>
-</div>
-<img alt="User Profile" class="w-10 h-10 rounded-full border border-outline-variant/30 object-cover" data-alt="Close-up portrait of a sophisticated man in a dark tailored suit, soft cinematic lighting with warm golden undertones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACwzx3MfYxK0QtChAle8l8bGOQzulV9ugcih4MMvLZS2J4aSS7dCvwgjCpcxKCL6pgrHgL3edm3QnBrmsaiIOj-7hUp0_AgUqe3I-mYWH5qo3Ctm7a1xS0lLkPW2j0zrboX4QlZioDwiZqHG2Z3n9ixx-nwvdgpSHrRaa69sw01zYTucmwxGsCCJLrgDQAkax3oR2Q08Fv_2GPD40YRPAS_ArUkqggFMmr6vI75rMRuOz_a_S4U0lZ_Q0g7IgdeO73-MvD1hZin_4"/>
-</div>
+<header class="fixed top-0 w-full z-50 bg-neutral-950/70 backdrop-blur-xl shadow-2xl shadow-black/20 px-12 py-5 flex justify-between items-center">
+
+  <!-- Logo -->
+  <div class="text-2xl font-serif italic text-amber-500 tracking-widest cursor-pointer shrink-0" routerLink="/">LuxeVoyage</div>
+
+  <!-- Nav links — switches between public and partner -->
+  <nav class="hidden md:flex items-center space-x-8">
+    <ng-container *ngIf="!isPartnerRoute">
+      <a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/hotels" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">Hotels</a>
+      <a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/destinations" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">Destinations</a>
+      <a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/fleet" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">The Elite Fleet</a>
+      <a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/vip" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">VIP</a>
+      <a *ngIf="authService.isLoggedIn() && !authService.isHotelManager()" class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/my-bookings" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">My Bookings</a>
+    </ng-container>
+    <ng-container *ngIf="isPartnerRoute">
+      <a class="font-serif tracking-tight text-neutral-400 hover:text-amber-400 transition-colors duration-300" routerLink="/partner/dashboard" routerLinkActive="!text-amber-400 border-b border-amber-500/30 pb-1">Dashboard</a>
+      <a class="font-serif tracking-tight text-neutral-400 hover:text-amber-400 transition-colors duration-300" routerLink="/partner/add-property" routerLinkActive="!text-amber-400 border-b border-amber-500/30 pb-1">Add Property</a>
+      <a class="font-serif tracking-tight text-neutral-500 hover:text-neutral-300 transition-colors duration-300 text-sm" routerLink="/">← Back to site</a>
+    </ng-container>
+  </nav>
+
+  <!-- Right side -->
+  <div class="flex items-center space-x-5">
+    <button *ngIf="!authService.isLoggedIn()" routerLink="/signup"
+      class="hidden lg:block bg-primary text-on-primary px-5 py-2 rounded-lg font-label text-[11px] uppercase tracking-widest font-bold hover:scale-105 transition-transform shadow-lg shadow-primary/10">
+      Book Now
+    </button>
+
+    <!-- Profile Menu -->
+    <div class="relative profile-menu-container">
+      <button (click)="toggleProfileMenu()"
+        class="w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 overflow-hidden"
+        [class]="authService.isLoggedIn() ? 'border-amber-500/60 hover:border-amber-400' : 'border-neutral-700 hover:border-amber-500/40'">
+        <span *ngIf="!authService.isLoggedIn()" class="material-symbols-outlined text-neutral-400 text-xl">person</span>
+        <span *ngIf="authService.isLoggedIn()" class="text-amber-400 font-bold text-sm uppercase">
+          {{ authService.getUserName().charAt(0) }}
+        </span>
+      </button>
+
+      <!-- Dropdown -->
+      <div *ngIf="showProfileMenu"
+        class="absolute right-0 top-12 w-56 bg-neutral-900/98 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl py-2 z-50">
+
+        <ng-container *ngIf="authService.isLoggedIn(); else loggedOutMenu">
+          <!-- User info -->
+          <div class="px-4 py-3 border-b border-white/10">
+            <p class="text-xs text-neutral-500 uppercase tracking-widest">Signed in as</p>
+            <p class="text-sm text-white font-medium truncate mt-1">{{ authService.getUserName() }}</p>
+            <span class="inline-block mt-1 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full"
+              [class]="authService.isHotelManager() ? 'bg-amber-500/20 text-amber-400' : 'bg-neutral-700 text-neutral-400'">
+              {{ authService.isHotelManager() ? 'Hotel Manager' : 'Customer' }}
+            </span>
+          </div>
+
+          <!-- Manager links -->
+          <ng-container *ngIf="authService.isHotelManager()">
+            <button (click)="goToDashboard()" class="w-full text-left px-4 py-3 text-sm text-amber-400 hover:bg-amber-500/10 transition-colors flex items-center gap-3">
+              <span class="material-symbols-outlined text-base">dashboard</span>
+              Partner Dashboard
+            </button>
+            <a routerLink="/partner/add-property" (click)="showProfileMenu = false" class="block px-4 py-3 text-sm text-neutral-300 hover:bg-white/5 transition-colors flex items-center gap-3">
+              <span class="material-symbols-outlined text-base">add_home</span>
+              Add Property
+            </a>
+          </ng-container>
+
+          <!-- Customer links -->
+          <ng-container *ngIf="!authService.isHotelManager()">
+            <a routerLink="/my-bookings" (click)="showProfileMenu = false" class="block px-4 py-3 text-sm text-neutral-300 hover:bg-white/5 transition-colors flex items-center gap-3">
+              <span class="material-symbols-outlined text-base">receipt_long</span>
+              My Bookings
+            </a>
+          </ng-container>
+
+          <div class="border-t border-white/10 mt-1"></div>
+          <button (click)="logout()" class="w-full text-left px-4 py-3 text-sm text-neutral-400 hover:bg-white/5 transition-colors flex items-center gap-3">
+            <span class="material-symbols-outlined text-base">logout</span>
+            Sign Out
+          </button>
+        </ng-container>
+
+        <ng-template #loggedOutMenu>
+          <a routerLink="/login" (click)="showProfileMenu = false" class="block px-4 py-3 text-sm text-neutral-300 hover:bg-white/5 transition-colors flex items-center gap-3">
+            <span class="material-symbols-outlined text-base">login</span>
+            Sign In
+          </a>
+          <a routerLink="/signup" (click)="showProfileMenu = false" class="block px-4 py-3 text-sm text-neutral-300 hover:bg-white/5 transition-colors flex items-center gap-3">
+            <span class="material-symbols-outlined text-base">person_add</span>
+            Create Account
+          </a>
+        </ng-template>
+      </div>
+    </div>
+  </div>
 </header>

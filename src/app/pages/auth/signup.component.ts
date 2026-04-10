@@ -35,7 +35,8 @@ export class SignupComponent implements OnInit, OnDestroy {
       full_name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      terms: [false, Validators.requiredTrue]
+      terms: [false, Validators.requiredTrue],
+      isHotelPartner: [false]
     });
   }
 
@@ -71,7 +72,8 @@ export class SignupComponent implements OnInit, OnDestroy {
       email: this.signupForm.value.email,
       password: this.signupForm.value.password,
       firstName: firstName,
-      lastName: lastName
+      lastName: lastName,
+      role: this.signupForm.value.isHotelPartner ? 'HotelManager' : 'Customer'
     };
 
     this.authService.register(payload).subscribe({
@@ -79,13 +81,32 @@ export class SignupComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         // Proceed to login after successful registration
         this.authService.login({ email: payload.email, password: payload.password }).subscribe({
-          next: () => this.router.navigate(['/']),
+          next: () => {
+             if (this.authService.getUserRole() === 'HotelManager') {
+                this.router.navigate(['/partner/dashboard']);
+             } else {
+                this.router.navigate(['/']);
+             }
+          },
           error: () => this.router.navigate(['/login'])
         });
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Failed to register account';
+        
+        let parsedError = 'Failed to register account';
+        if (err.error) {
+          if (Array.isArray(err.error)) {
+             // Standard Identity Errors e.g. [{"code": "DuplicateUserName", "description": "Email already taken"}]
+             parsedError = err.error.map((e: any) => e.description).join(' ');
+          } else if (err.error.message) {
+             parsedError = err.error.message;
+          } else if (typeof err.error === 'string') {
+             parsedError = err.error;
+          }
+        }
+        
+        this.errorMessage = parsedError;
       }
     });
   }

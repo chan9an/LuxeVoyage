@@ -48,6 +48,14 @@
 <input formControlName="password" class="w-full bg-surface-container-high border-none border-b border-outline-variant/30 px-0 py-3 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-0 focus:border-primary transition-all duration-300 outline-none" id="password" placeholder="••••••••••••" type="password"/>
 </div>
 </div>
+<div class="flex items-center space-x-3 group cursor-pointer mt-4">
+<div class="relative flex items-center">
+<input formControlName="isHotelPartner" class="h-4 w-4 rounded-none bg-surface-container-highest border-outline-variant text-primary focus:ring-offset-surface-container-lowest focus:ring-primary/20" id="isHotelPartner" type="checkbox"/>
+</div>
+<label class="text-xs text-primary leading-relaxed font-bold uppercase tracking-wider" for="isHotelPartner">
+    Register as Hotel Partner
+</label>
+</div>
 <div class="flex items-start space-x-3 group cursor-pointer">
 <div class="relative flex items-center mt-0.5">
 <input formControlName="terms" class="h-4 w-4 rounded-none bg-surface-container-highest border-outline-variant text-primary focus:ring-offset-surface-container-lowest focus:ring-primary/20" id="terms" type="checkbox"/>
@@ -59,6 +67,17 @@
 <button [disabled]="signupForm.invalid || isLoading" class="bg-gradient-to-br from-primary to-primary-container w-full py-5 rounded-lg text-on-primary font-label text-xs uppercase tracking-[0.2em] font-bold shadow-[0_20px_40px_rgba(242,202,80,0.12)] hover:shadow-[0_20px_50px_rgba(242,202,80,0.2)] transition-all duration-500 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed" type="submit">
                         {{ isLoading ? 'Processing...' : 'Join the Elite' }}
                     </button>
+                    
+<div class="mt-8 flex items-center">
+    <div class="flex-grow border-t border-outline-variant/30"></div>
+    <span class="flex-shrink-0 mx-4 text-on-surface-variant text-[10px] uppercase tracking-widest">Or Continue With</span>
+    <div class="flex-grow border-t border-outline-variant/30"></div>
+</div>
+
+<a href="https://localhost:7217/auth/external-login" class="mt-6 flex items-center justify-center w-full py-4 border border-outline-variant/30 rounded-lg hover:bg-surface-container-high transition-colors group cursor-pointer">
+    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform">
+    <span class="text-on-surface font-label text-xs tracking-wider">Google</span>
+</a>
 </form>
 <div class="mt-16 text-center">
 <p class="text-on-surface-variant text-xs font-light tracking-wide">

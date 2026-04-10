@@ -1,0 +1,131 @@
+<div class="bg-surface-container-lowest text-on-surface font-body min-h-screen">
+
+  <main class="pt-20 pb-24 px-6 md:px-12 max-w-5xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-12">
+      <span class="font-label text-xs tracking-[0.3em] text-primary uppercase mb-3 block">Your Journey</span>
+      <h1 class="font-headline text-4xl md:text-5xl text-white tracking-tight">My Reservations</h1>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-32">
+      <div class="flex flex-col items-center gap-4">
+        <div class="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+        <p class="text-stone-500 text-xs tracking-widest uppercase">Loading your bookings...</p>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="!isLoading && error" class="bg-red-500/10 border border-red-500/20 rounded-xl p-8 text-center">
+      <p class="text-red-400">{{ error }}</p>
+      <button (click)="loadBookings()" class="mt-4 text-primary text-xs uppercase tracking-widest hover:underline">Retry</button>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!isLoading && !error && bookings.length === 0" class="text-center py-32">
+      <span class="material-symbols-outlined text-stone-700 text-6xl mb-6 block">hotel_class</span>
+      <h3 class="font-headline text-2xl text-stone-400 mb-3">No reservations yet</h3>
+      <p class="text-stone-600 text-sm mb-8">Your upcoming stays will appear here.</p>
+      <a routerLink="/hotels" class="inline-flex items-center gap-2 px-8 py-3 bg-primary text-on-primary font-bold text-xs uppercase tracking-widest hover:bg-primary-container transition-all">
+        <span class="material-symbols-outlined text-sm">search</span>
+        Browse Hotels
+      </a>
+    </div>
+
+    <!-- Bookings List -->
+    <div *ngIf="!isLoading && bookings.length > 0" class="space-y-6">
+      <div *ngFor="let booking of bookings"
+        class="bg-surface-container rounded-xl overflow-hidden border border-outline-variant/10 hover:border-outline-variant/30 transition-all duration-300">
+
+        <div class="flex flex-col md:flex-row">
+          <!-- Image -->
+          <div class="md:w-56 h-40 md:h-auto relative shrink-0 overflow-hidden">
+            <img *ngIf="booking.hotelImageUrl" [src]="booking.hotelImageUrl" [alt]="booking.hotelName"
+              class="w-full h-full object-cover"/>
+            <div *ngIf="!booking.hotelImageUrl" class="w-full h-full bg-stone-800 flex items-center justify-center">
+              <span class="material-symbols-outlined text-stone-600 text-4xl">hotel</span>
+            </div>
+          </div>
+
+          <!-- Details -->
+          <div class="flex-1 p-6 flex flex-col justify-between">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-3 mb-1">
+                  <h3 class="font-headline text-xl text-white">{{ booking.hotelName || 'Hotel' }}</h3>
+                  <span class="text-[9px] uppercase tracking-widest px-2 py-0.5 border rounded-full"
+                    [class]="statusColors[booking.status]">
+                    {{ statusLabels[booking.status] }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 text-stone-500 text-xs mb-3">
+                  <span class="material-symbols-outlined text-sm">location_on</span>
+                  {{ booking.location || 'India' }}
+                </div>
+                <p class="text-stone-400 text-sm">{{ booking.roomName || 'Room' }}</p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="font-headline text-2xl text-primary">{{ formatPrice(booking.totalPrice) }}</p>
+                <p class="text-stone-500 text-xs mt-1">{{ getNightCount(booking.checkInDate, booking.checkOutDate) }} nights</p>
+              </div>
+            </div>
+
+            <!-- Dates & Actions -->
+            <div class="flex items-center justify-between mt-4 pt-4 border-t border-stone-800">
+              <div class="flex items-center gap-6 text-xs text-stone-400">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-sm">login</span>
+                  <div>
+                    <p class="text-[10px] uppercase tracking-widest text-stone-600">Check-in</p>
+                    <p class="text-white font-medium">{{ formatDate(booking.checkInDate) }}</p>
+                  </div>
+                </div>
+                <div class="w-8 h-px bg-stone-700"></div>
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-sm">logout</span>
+                  <div>
+                    <p class="text-[10px] uppercase tracking-widest text-stone-600">Check-out</p>
+                    <p class="text-white font-medium">{{ formatDate(booking.checkOutDate) }}</p>
+                  </div>
+                </div>
+                <div *ngIf="booking.guestCount" class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-primary text-sm">group</span>
+                  <p class="text-white">{{ booking.guestCount }} guest{{ booking.guestCount !== 1 ? 's' : '' }}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <a [routerLink]="['/hotels', booking.hotelId]"
+                  class="text-xs text-stone-400 hover:text-primary transition-colors uppercase tracking-widest flex items-center gap-1">
+                  <span class="material-symbols-outlined text-sm">open_in_new</span>
+                  View Hotel
+                </a>
+                <button *ngIf="canCancel(booking)"
+                  (click)="cancelBooking(booking.id)"
+                  [disabled]="cancellingId === booking.id"
+                  class="text-xs text-red-500/60 hover:text-red-400 transition-colors uppercase tracking-widest flex items-center gap-1 disabled:opacity-40">
+                  <span *ngIf="cancellingId !== booking.id" class="material-symbols-outlined text-sm">cancel</span>
+                  <span *ngIf="cancellingId === booking.id" class="w-3 h-3 border border-red-400/30 border-t-red-400 rounded-full animate-spin"></span>
+                  {{ cancellingId === booking.id ? 'Cancelling...' : 'Cancel' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-[#0e0e0e] w-full py-12 px-12 border-t border-white/5">
+    <div class="flex justify-between items-center max-w-5xl mx-auto">
+      <div class="font-serif italic text-[#f2ca50]" routerLink="/" style="cursor:pointer">LuxeVoyage</div>
+      <p class="text-[10px] tracking-widest uppercase text-white/30">© 2024 LuxeVoyage. All rights reserved.</p>
+    </div>
+  </footer>
+
+</div>
+
+

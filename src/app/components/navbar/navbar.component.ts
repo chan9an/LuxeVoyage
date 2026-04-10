@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,15 +11,38 @@ import { filter } from 'rxjs/operators';
   templateUrl: './navbar.component.html'
 })
 export class NavbarComponent {
-  showNavbar = true;
-  
-  constructor(private router: Router) {
+  showProfileMenu = false;
+  isPartnerRoute = false;
+
+  constructor(private router: Router, public authService: AuthService) {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      // Hide the global navbar if the current route handles its own header
-      const hideRoutes = ['/destinations', '/hotels', '/login', '/signup'];
-      this.showNavbar = !hideRoutes.some(route => event.urlAfterRedirects.startsWith(route));
+      this.isPartnerRoute = event.urlAfterRedirects.startsWith('/partner');
+      this.showProfileMenu = false;
     });
+  }
+
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
+  }
+
+  goToDashboard() {
+    this.showProfileMenu = false;
+    this.router.navigate(['/partner/dashboard']);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.showProfileMenu = false;
+    this.router.navigate(['/']);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.profile-menu-container')) {
+      this.showProfileMenu = false;
+    }
   }
 }

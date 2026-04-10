@@ -1,0 +1,336 @@
+<div class="bg-[#131313] text-[#e2e2e2] font-label min-h-screen pt-20">
+    <main class="flex-grow px-8 max-w-screen-2xl mx-auto w-full pb-20">
+
+        <!-- Hero Greeting -->
+        <header class="mb-16">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <span class="font-label text-xs tracking-[0.2em] text-primary uppercase mb-3 block">Welcome back</span>
+                    <h1 class="font-headline text-4xl md:text-5xl lg:text-6xl text-on-surface tracking-tight">
+                        {{ greeting }},<br/>
+                        <span class="italic text-primary-fixed-dim">{{ managerName }}</span>
+                    </h1>
+                </div>
+                <div class="flex gap-4">
+                    <a routerLink="/partner/add-property" class="px-6 py-3 bg-gradient-to-br from-[#f2ca50] to-[#d4af37] text-on-primary font-label text-xs tracking-widest uppercase font-bold shadow-xl hover:scale-105 transition-transform duration-300 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        Add New Property
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="flex items-center justify-center py-32">
+            <div class="flex flex-col items-center gap-4">
+                <div class="w-10 h-10 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin"></div>
+                <p class="text-stone-500 text-xs tracking-widest uppercase">Loading your properties...</p>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="!isLoading && error" class="bg-red-900/20 border border-red-500/30 rounded-xl p-8 mb-12 text-center">
+            <span class="material-symbols-outlined text-red-400 text-3xl mb-3 block">error_outline</span>
+            <p class="text-red-400 text-sm">{{ error }}</p>
+            <button (click)="loadHotels()" class="mt-4 px-6 py-2 border border-red-500/30 text-red-400 text-xs uppercase tracking-widest hover:bg-red-500/10 transition-colors">
+                Retry
+            </button>
+        </div>
+
+        <ng-container *ngIf="!isLoading && !error">
+
+            <!-- Executive Insights -->
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <!-- Total Properties Card -->
+                <div class="bg-surface-container-low p-8 relative overflow-hidden group rounded-xl">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="font-label text-xs tracking-widest text-secondary uppercase">Total Properties</span>
+                        <span class="material-symbols-outlined text-primary text-xl">apartment</span>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-3xl font-headline text-on-surface">{{ hotels.length }}</h3>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-xs text-stone-500 font-label" *ngIf="hotels.length === 0">No properties listed yet</span>
+                            <span class="text-xs text-emerald-500 font-label" *ngIf="hotels.length > 0">Active on platform</span>
+                        </div>
+                    </div>
+                    <div class="h-8 w-full flex items-end gap-1 opacity-40 group-hover:opacity-80 transition-opacity duration-500">
+                        <div class="w-full bg-primary/20 h-4 rounded-t-sm"></div>
+                        <div class="w-full bg-primary/40 h-6 rounded-t-sm"></div>
+                        <div class="w-full bg-primary/30 h-5 rounded-t-sm"></div>
+                        <div class="w-full bg-primary/50 h-8 rounded-t-sm"></div>
+                        <div class="w-full bg-primary h-7 rounded-t-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Average Rating Card -->
+                <div class="bg-surface-container-low p-8 relative overflow-hidden group rounded-xl">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="font-label text-xs tracking-widest text-secondary uppercase">Avg. Rating</span>
+                        <span class="material-symbols-outlined text-primary text-xl">star</span>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-3xl font-headline text-on-surface">
+                            {{ avgRating }}<span class="text-lg text-secondary" *ngIf="hotels.length > 0">/5</span>
+                        </h3>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-xs text-stone-500 font-label" *ngIf="hotels.length === 0">No ratings yet</span>
+                            <span class="text-xs text-stone-400 font-label" *ngIf="hotels.length > 0">{{ totalReviews }} total reviews</span>
+                        </div>
+                    </div>
+                    <div class="h-8 w-full flex items-end gap-1 opacity-40 group-hover:opacity-80 transition-opacity duration-500">
+                        <div class="w-full bg-primary h-9 rounded-t-sm"></div>
+                        <div class="w-full bg-primary h-8 rounded-t-sm"></div>
+                        <div class="w-full bg-primary h-9 rounded-t-sm"></div>
+                        <div class="w-full bg-primary h-10 rounded-t-sm"></div>
+                        <div class="w-full bg-primary h-9 rounded-t-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Starting Price Card -->
+                <div class="bg-surface-container-low p-8 relative overflow-hidden group rounded-xl">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="font-label text-xs tracking-widest text-secondary uppercase">Lowest Price / Night</span>
+                        <span class="material-symbols-outlined text-primary text-xl">payments</span>
+                    </div>
+                    <div class="mb-6">
+                        <h3 class="text-3xl font-headline text-on-surface">
+                            <ng-container *ngIf="hotels.length > 0">
+                                {{ formatPrice(hotels[0].pricePerNight) }}
+                            </ng-container>
+                            <ng-container *ngIf="hotels.length === 0">—</ng-container>
+                        </h3>
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-xs text-stone-500 font-label" *ngIf="hotels.length === 0">Add a property to see pricing</span>
+                            <span class="text-xs text-stone-400 font-label" *ngIf="hotels.length > 0">Starting rate</span>
+                        </div>
+                    </div>
+                    <div class="h-8 w-full flex items-end gap-1 opacity-40 group-hover:opacity-80 transition-opacity duration-500">
+                        <div class="w-full bg-primary/20 h-4 rounded-t-sm"></div>
+                        <div class="w-full bg-primary/20 h-6 rounded-t-sm"></div>
+                        <div class="w-full bg-primary/40 h-5 rounded-t-sm"></div>
+                        <div class="w-full bg-primary/30 h-8 rounded-t-sm"></div>
+                        <div class="w-full bg-primary h-9 rounded-t-sm"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Properties List -->
+            <section>
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="font-headline text-2xl">Your Properties</h2>
+                    <a routerLink="/partner/add-property" class="text-xs font-label text-primary tracking-widest uppercase hover:text-amber-300 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        Add Property
+                    </a>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="hotels.length === 0" class="bg-surface-container p-16 rounded-xl text-center">
+                    <span class="material-symbols-outlined text-stone-600 text-6xl mb-6 block">apartment</span>
+                    <h3 class="font-headline text-2xl text-stone-400 mb-3">No properties yet</h3>
+                    <p class="text-stone-600 text-sm mb-8 max-w-sm mx-auto">Start by listing your first property to reach thousands of luxury travellers.</p>
+                    <a routerLink="/partner/add-property" class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-br from-[#f2ca50] to-[#d4af37] text-on-primary font-label text-xs tracking-widest uppercase font-bold shadow-xl hover:scale-105 transition-transform duration-300">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        List Your First Property
+                    </a>
+                </div>
+
+                <!-- Properties Grid -->
+                <div *ngIf="hotels.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div *ngFor="let hotel of hotels" class="bg-surface-container rounded-xl overflow-hidden group hover:ring-1 hover:ring-amber-500/30 transition-all duration-300 relative">
+
+                        <!-- Confirm Delete Overlay -->
+                        <div *ngIf="confirmDeleteId === hotel.id" class="absolute inset-0 z-20 bg-stone-950/90 backdrop-blur-sm flex flex-col items-center justify-center gap-4 rounded-xl p-6">
+                            <span class="material-symbols-outlined text-red-400 text-4xl">warning</span>
+                            <p class="text-white font-headline text-lg text-center">Remove this property?</p>
+                            <p class="text-stone-400 text-xs text-center">This action cannot be undone.</p>
+                            <div class="flex gap-3 mt-2">
+                                <button (click)="cancelDelete()" class="px-5 py-2 border border-stone-600 text-stone-400 text-xs uppercase tracking-widest hover:bg-stone-800 transition-colors rounded">
+                                    Cancel
+                                </button>
+                                <button (click)="confirmDelete(hotel.id)" class="px-5 py-2 bg-red-600 text-white text-xs uppercase tracking-widest hover:bg-red-500 transition-colors rounded">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Hotel Image -->
+                        <div class="aspect-video relative overflow-hidden">
+                            <img *ngIf="hotel.imageUrl" [src]="hotel.imageUrl" [alt]="hotel.name"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"/>
+                            <div *ngIf="!hotel.imageUrl" class="w-full h-full bg-stone-800 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-stone-600 text-4xl">image_not_supported</span>
+                            </div>
+                            <div class="absolute top-4 left-4 bg-stone-950/70 backdrop-blur-sm px-3 py-1 rounded-full">
+                                <span class="text-[10px] font-label text-amber-400 uppercase tracking-widest">{{ getPropertyTypeLabel(hotel.type) }}</span>
+                            </div>
+                            <!-- Delete button -->
+                            <button
+                                (click)="askConfirmDelete(hotel.id)"
+                                [disabled]="deletingId === hotel.id"
+                                class="absolute top-4 right-4 w-8 h-8 bg-stone-950/70 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600/80"
+                                title="Remove property">
+                                <span *ngIf="deletingId !== hotel.id" class="material-symbols-outlined text-white text-sm">delete</span>
+                                <span *ngIf="deletingId === hotel.id" class="w-4 h-4 border border-white/30 border-t-white rounded-full animate-spin"></span>
+                            </button>
+                        </div>
+
+                        <!-- Hotel Info -->
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-headline text-lg text-on-surface group-hover:text-primary transition-colors">{{ hotel.name }}</h3>
+                                <span class="text-primary font-bold text-sm">{{ formatPrice(hotel.pricePerNight) }}<span class="text-[10px] text-stone-500 font-normal">/night</span></span>
+                            </div>
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="material-symbols-outlined text-stone-500 text-sm">location_on</span>
+                                <p class="text-xs text-stone-500 font-label">{{ hotel.location }}</p>
+                            </div>
+
+                            <!-- Rating & Reviews + Actions -->
+                            <div class="flex items-center justify-between pt-4 border-t border-stone-800">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-amber-400 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+                                    <span class="text-sm font-bold text-on-surface">{{ hotel.rating || '—' }}</span>
+                                    <span class="text-xs text-stone-500" *ngIf="hotel.reviewCount > 0">({{ hotel.reviewCount }})</span>
+                                    <span class="text-xs text-stone-600" *ngIf="!hotel.reviewCount || hotel.reviewCount === 0">No reviews</span>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <button (click)="openEdit(hotel)" class="text-xs text-amber-500/70 hover:text-amber-400 transition-colors font-label uppercase tracking-widest flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">edit</span>
+                                        Edit
+                                    </button>
+                                    <button (click)="askConfirmDelete(hotel.id)" class="text-xs text-red-500/60 hover:text-red-400 transition-colors font-label uppercase tracking-widest">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </ng-container>
+    </main>
+
+    <!-- ── Edit Slide-Over Panel ─────────────────────────────────────────── -->
+    <ng-container *ngIf="editingHotel">
+        <div class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" (click)="closeEdit()"></div>
+        <div class="fixed top-0 right-0 z-50 h-full w-full max-w-xl bg-stone-950 border-l border-stone-800 shadow-2xl flex flex-col overflow-hidden">
+            <!-- Header -->
+            <div class="flex items-center justify-between px-8 py-6 border-b border-stone-800 shrink-0">
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest text-stone-500 mb-1">Editing</p>
+                    <h2 class="font-headline text-xl text-white">{{ editingHotel.name }}</h2>
+                </div>
+                <button (click)="closeEdit()" class="w-9 h-9 rounded-full flex items-center justify-center text-stone-400 hover:bg-stone-800 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <!-- Scrollable body -->
+            <div class="flex-1 overflow-y-auto px-8 py-8 space-y-8" [formGroup]="editForm">
+                <div *ngIf="editSuccess" class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-4 py-3 flex items-center gap-3">
+                    <span class="material-symbols-outlined text-emerald-400 text-lg">check_circle</span>
+                    <span class="text-emerald-400 text-sm">Changes saved successfully!</span>
+                </div>
+                <div *ngIf="editError" class="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-red-400 text-sm">{{ editError }}</div>
+                <!-- Image -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-3">Property Image</label>
+                    <div class="relative aspect-video rounded-xl overflow-hidden bg-stone-900 border border-stone-700 group cursor-pointer">
+                        <img [src]="editImagePreview || editingHotel.imageUrl" class="w-full h-full object-cover"/>
+                        <label class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                            <span class="material-symbols-outlined text-white text-3xl">photo_camera</span>
+                            <span class="text-white text-xs uppercase tracking-widest">Change Image</span>
+                            <input type="file" accept="image/*" class="hidden" (change)="onEditFileSelected($event)"/>
+                        </label>
+                    </div>
+                    <p *ngIf="editNewFile" class="text-xs text-amber-400 mt-2 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">check</span> New image: {{ editNewFile.name }}
+                    </p>
+                </div>
+                <!-- Name -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-2">Property Name</label>
+                    <input formControlName="name" type="text" class="w-full bg-stone-900 border border-stone-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-1 focus:ring-amber-500/50 transition-colors"/>
+                </div>
+                <!-- Location -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-2">Location / City</label>
+                    <div class="relative" #editCityContainer>
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-500 text-sm pointer-events-none">location_on</span>
+                        <input [value]="editCitySearch" (input)="onEditCityInput($event)" (focus)="editShowCityDropdown = true"
+                            type="text" autocomplete="off" placeholder="Search city..."
+                            class="w-full bg-stone-900 border border-stone-700 rounded-lg pl-10 pr-4 py-3 text-white text-sm focus:ring-1 focus:ring-amber-500/50 transition-colors"/>
+                        <div *ngIf="editShowCityDropdown && editFilteredCities.length > 0"
+                            class="absolute z-50 top-full left-0 right-0 mt-1 bg-stone-900 border border-stone-700 rounded-lg shadow-2xl max-h-48 overflow-y-auto">
+                            <button *ngFor="let city of editFilteredCities" type="button" (click)="selectEditCity(city)"
+                                class="w-full text-left px-4 py-2.5 text-sm text-stone-300 hover:bg-amber-500/10 hover:text-amber-400 transition-colors flex items-center gap-2">
+                                <span class="material-symbols-outlined text-stone-600 text-sm">location_city</span>{{ city }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Type & Price -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-2">Property Type</label>
+                        <select formControlName="type" class="w-full bg-stone-900 border border-stone-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-1 focus:ring-amber-500/50 appearance-none">
+                            <option *ngFor="let t of propertyTypes" [value]="t.value">{{ t.label }}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-2">Price / Night (₹)</label>
+                        <input formControlName="pricePerNight" type="number" min="0" class="w-full bg-stone-900 border border-stone-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-1 focus:ring-amber-500/50 transition-colors"/>
+                    </div>
+                </div>
+                <!-- Description -->
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-2">Description</label>
+                    <textarea formControlName="description" rows="3" placeholder="Describe your property..."
+                        class="w-full bg-stone-900 border border-stone-700 rounded-lg px-4 py-3 text-white text-sm focus:ring-1 focus:ring-amber-500/50 transition-colors resize-none"></textarea>
+                </div>
+                <!-- Amenities -->
+                <div formArrayName="amenities">
+                    <label class="block text-[10px] uppercase tracking-widest text-stone-500 mb-3">Amenities</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label *ngFor="let amenity of availableAmenities; let i = index" class="flex items-center gap-2 cursor-pointer group py-1">
+                            <div class="w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-colors"
+                                [class]="editAmenitiesArray.at(i).value ? 'bg-amber-500 border-amber-500' : 'border-stone-600 group-hover:border-amber-500/50'">
+                                <input type="checkbox" [formControlName]="i" class="hidden"/>
+                                <span *ngIf="editAmenitiesArray.at(i).value" class="material-symbols-outlined text-black text-[10px]">check</span>
+                            </div>
+                            <span class="text-xs text-stone-400 group-hover:text-stone-200 transition-colors">{{ amenity.label }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer actions -->
+            <div class="px-8 py-6 border-t border-stone-800 flex items-center justify-between shrink-0">
+                <button (click)="closeEdit()" class="text-sm text-stone-500 hover:text-stone-300 transition-colors">Cancel</button>
+                <button (click)="saveEdit()" [disabled]="editSaving || editForm.invalid"
+                    class="flex items-center gap-2 px-8 py-3 bg-gradient-to-br from-amber-500 to-amber-600 text-black font-bold text-xs uppercase tracking-widest rounded-lg hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
+                    <span *ngIf="editSaving" class="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
+                    <span *ngIf="!editSaving" class="material-symbols-outlined text-sm">save</span>
+                    {{ editSaving ? 'Saving...' : 'Save Changes' }}
+                </button>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-stone-800/30 bg-stone-950 mt-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center px-8 py-12 w-full max-w-screen-2xl mx-auto">
+            <div class="font-sans text-xs tracking-widest uppercase text-stone-500 mb-6 md:mb-0">
+                © 2024 LuxeVoyage Partner Portal. All rights reserved.
+            </div>
+            <div class="flex flex-wrap justify-center gap-8">
+                <a class="font-sans text-xs tracking-widest uppercase text-stone-500 hover:text-amber-400 transition-colors" href="#">Privacy Policy</a>
+                <a class="font-sans text-xs tracking-widest uppercase text-stone-500 hover:text-amber-400 transition-colors" href="#">Terms of Service</a>
+                <a class="font-sans text-xs tracking-widest uppercase text-stone-500 hover:text-amber-400 transition-colors" href="#">Partner Support</a>
+            </div>
+        </div>
+    </footer>
+</div>
+
+

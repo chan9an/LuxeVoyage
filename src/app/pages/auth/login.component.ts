@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 
@@ -16,11 +16,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
 
   images: string[] = [
-    '/pexels-han-798356342-35471637.jpg',
-    '/pexels-jiri-zeman-2040000-6389532.jpg',
-    '/pexels-muhammed-i-ki-tepe-155329832-12657897.jpg',
-    '/pexels-rasul70-34596088.jpg',
-    '/pexels-vince-21856159.jpg'
+    'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&q=90&fit=crop', // Taj Mahal
+    'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=90&fit=crop', // Jaipur palace
+    'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200&q=90&fit=crop', // Luxury hotel pool
+    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=90&fit=crop', // Resort
+    'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1200&q=90&fit=crop',  // Grand hotel lobby
   ];
   currentImageIndex: number = 0;
   intervalId: any;
@@ -29,7 +29,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -39,6 +40,18 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.startImageRotation();
+    
+    // Check for Google OAuth Token
+    this.route.queryParams.subscribe(params => {
+        if (params['token']) {
+            this.authService.saveToken(params['token']);
+            if (this.authService.getUserRole() === 'HotelManager') {
+                this.router.navigate(['/partner/dashboard']);
+            } else {
+                this.router.navigate(['/']);
+            }
+        }
+    });
   }
 
   ngOnDestroy(): void {
@@ -65,11 +78,27 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/']);
+        if (this.authService.getUserRole() === 'HotelManager') {
+            this.router.navigate(['/partner/dashboard']);
+        } else {
+            this.router.navigate(['/']);
+        }
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Invalid email or password';
+        
+        let parsedError = 'Invalid email or password';
+        if (err.error) {
+          if (Array.isArray(err.error)) {
+             parsedError = err.error.map((e: any) => e.description).join(' ');
+          } else if (err.error.message) {
+             parsedError = err.error.message;
+          } else if (typeof err.error === 'string') {
+             parsedError = err.error;
+          }
+        }
+        
+        this.errorMessage = parsedError;
       }
     });
   }
