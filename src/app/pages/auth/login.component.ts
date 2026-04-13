@@ -15,12 +15,15 @@ export class LoginComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   isLoading: boolean = false;
 
+  // These Unsplash images rotate in the background panel to give the login page a
+  // premium editorial feel. They're loaded lazily by the browser so they don't block
+  // the initial render.
   images: string[] = [
-    'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&q=90&fit=crop', // Taj Mahal
-    'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=90&fit=crop', // Jaipur palace
-    'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200&q=90&fit=crop', // Luxury hotel pool
-    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=90&fit=crop', // Resort
-    'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1200&q=90&fit=crop',  // Grand hotel lobby
+    'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=90&fit=crop',
+    'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1200&q=90&fit=crop',
   ];
   currentImageIndex: number = 0;
   intervalId: any;
@@ -32,6 +35,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    // We build the form in the constructor so it's ready before the template renders.
+    // Doing it here rather than ngOnInit means the form is never undefined when Angular
+    // first evaluates the template bindings.
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
@@ -40,8 +46,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.startImageRotation();
-    
-    // Check for Google OAuth Token
+
+    // Google OAuth redirects back to /login?token=... after the backend exchanges the
+    // Google code for a JWT. We read the token from the query params here, save it, and
+    // redirect the user to the right dashboard. This is the final leg of the OAuth flow.
     this.route.queryParams.subscribe(params => {
         if (params['token']) {
             this.authService.saveToken(params['token']);
@@ -55,6 +63,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Always clear the interval in ngOnDestroy to prevent memory leaks. If we don't,
+    // the setInterval callback keeps firing even after the component is destroyed, which
+    // can cause "expression changed after it was checked" errors and ghost updates.
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
@@ -63,7 +74,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   startImageRotation(): void {
     this.intervalId = setInterval(() => {
       this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
-      this.cdr.detectChanges(); // Force change detection
+      // We call detectChanges() manually here because setInterval runs outside Angular's
+      // zone, so the framework doesn't automatically know the state changed. Without this
+      // the image wouldn't update until the next user interaction triggered a CD cycle.
+      this.cdr.detectChanges();
     }, 5000);
   }
 
@@ -75,6 +89,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.errorMessage = '';
 
+    // We subscribe to the login Observable here in the component rather than using async pipe
+    // because we need to perform imperative navigation after success, which doesn't fit the
+    // declarative async pipe pattern cleanly.
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.isLoading = false;
@@ -86,7 +103,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isLoading = false;
-        
+
+        // The backend can return errors in several shapes depending on which validation
+        // layer caught the problem — ASP.NET Identity returns an array of error objects,
+        // our custom middleware returns { message: string }, and some endpoints return
+        // plain strings. We handle all three cases here to always show a readable message.
         let parsedError = 'Invalid email or password';
         if (err.error) {
           if (Array.isArray(err.error)) {
@@ -97,14 +118,16 @@ export class LoginComponent implements OnInit, OnDestroy {
              parsedError = err.error;
           } else if (err.error.Message) {
              parsedError = err.error.Message;
-             // Unverified account — redirect to signup OTP step
+             // If the account exists but email isn't verified, the backend sends
+             // requiresVerification: true. We redirect to signup's OTP step so the
+             // user can complete verification without starting over.
              if (err.error.requiresVerification || err.error.RequiresVerification) {
                this.router.navigate(['/signup'], { state: { verifyEmail: err.error.email || err.error.Email } });
                return;
              }
           }
         }
-        
+
         this.errorMessage = parsedError;
       }
     });

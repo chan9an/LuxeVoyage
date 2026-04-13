@@ -14,7 +14,6 @@ export class LuxuryHotelsComponent implements OnInit {
   allHotels: any[] = [];
   isLoading = true;
 
-  // Filters
   searchQuery = '';
   selectedTypes: number[] = [];
   selectedAmenities: number[] = [];
@@ -23,7 +22,6 @@ export class LuxuryHotelsComponent implements OnInit {
   minRating = 0;
   sortBy = 'recommended';
 
-  // Pagination
   currentPage = 1;
   pageSize = 9;
 
@@ -32,45 +30,39 @@ export class LuxuryHotelsComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   readonly propertyTypes = [
-    { label: 'Hotel',       value: 1 },
-    { label: 'Apartment',   value: 2 },
-    { label: 'Resort',      value: 3 },
-    { label: 'Villa',       value: 4 },
-    { label: 'Guest House', value: 5 },
-    { label: 'Hostel',      value: 6 },
-    { label: 'Homestay',    value: 7 },
-    { label: 'Boat',        value: 8 },
-    { label: 'Campsite',    value: 9 },
+    { label: 'Hotel', value: 1 }, { label: 'Apartment', value: 2 },
+    { label: 'Resort', value: 3 }, { label: 'Villa', value: 4 },
+    { label: 'Guest House', value: 5 }, { label: 'Hostel', value: 6 },
+    { label: 'Homestay', value: 7 }, { label: 'Boat', value: 8 },
+    { label: 'Campsite', value: 9 },
   ];
 
   readonly amenityList = [
-    { label: 'Free Wifi',          value: 0  },
-    { label: 'Parking',            value: 1  },
-    { label: 'Airport Transfer',   value: 2  },
-    { label: 'Concierge',          value: 3  },
-    { label: 'Room Service',       value: 4  },
-    { label: 'Air Conditioning',   value: 6  },
-    { label: 'Balcony',            value: 7  },
-    { label: 'Sea View',           value: 8  },
-    { label: 'Jacuzzi',            value: 10 },
-    { label: 'Breakfast Included', value: 11 },
-    { label: 'Restaurant',         value: 12 },
-    { label: 'Bar',                value: 13 },
-    { label: 'Spa',                value: 15 },
-    { label: 'Gym',                value: 16 },
-    { label: 'Pool',               value: 17 },
+    { label: 'Free Wifi', value: 0 }, { label: 'Parking', value: 1 },
+    { label: 'Airport Transfer', value: 2 }, { label: 'Concierge', value: 3 },
+    { label: 'Room Service', value: 4 }, { label: 'Air Conditioning', value: 6 },
+    { label: 'Balcony', value: 7 }, { label: 'Sea View', value: 8 },
+    { label: 'Jacuzzi', value: 10 }, { label: 'Breakfast Included', value: 11 },
+    { label: 'Restaurant', value: 12 }, { label: 'Bar', value: 13 },
+    { label: 'Spa', value: 15 }, { label: 'Gym', value: 16 },
+    { label: 'Pool', value: 17 },
   ];
 
   ngOnInit() {
-    // Pre-fill search from ?q= (e.g. clicking a destination on home page)
+    // We read the ?q= query param here to support deep-linking from the home page's
+    // destination cards. When a user clicks "Jaipur" on the home page, they land here
+    // with the search pre-filled. ActivatedRoute.queryParams is an Observable so it
+    // stays reactive — if the URL changes while this component is alive, the search updates.
     this.route.queryParams.subscribe(params => {
       if (params['q']) this.searchQuery = params['q'];
     });
 
+    // We fetch all hotels once and do all filtering/sorting/pagination client-side.
+    // For the current data volume this is fine and keeps the UX snappy. If the hotel
+    // count grows significantly, we'd move filtering to server-side query params.
     this.hotelService.getHotels().subscribe({
       next: (data: any[]) => {
         this.allHotels = data || [];
-        // set max price from data
         if (this.allHotels.length) {
           this.maxPrice = Math.max(...this.allHotels.map(h => h.pricePerNight));
         }
@@ -81,10 +73,13 @@ export class LuxuryHotelsComponent implements OnInit {
     });
   }
 
+  // filteredHotels is a getter rather than a stored array so it always reflects the
+  // current filter state without needing to manually trigger a recalculation. Angular's
+  // change detection calls this getter on every CD cycle, which is fine given the
+  // relatively small dataset we're working with.
   get filteredHotels(): any[] {
     let result = [...this.allHotels];
 
-    // Search
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase();
       result = result.filter(h =>
@@ -93,27 +88,25 @@ export class LuxuryHotelsComponent implements OnInit {
       );
     }
 
-    // Type filter
     if (this.selectedTypes.length) {
       result = result.filter(h => this.selectedTypes.includes(h.type));
     }
 
-    // Amenity filter
+    // Amenity filter uses every() so a hotel must have ALL selected amenities, not just one.
+    // This is an AND filter, not OR — which matches what users typically expect from
+    // multi-select amenity filters on booking platforms.
     if (this.selectedAmenities.length) {
       result = result.filter(h =>
         this.selectedAmenities.every(a => (h.amenities || []).includes(a))
       );
     }
 
-    // Price filter
     result = result.filter(h => h.pricePerNight >= this.minPrice && h.pricePerNight <= this.maxPrice);
 
-    // Rating filter
     if (this.minRating > 0) {
       result = result.filter(h => (h.rating || 0) >= this.minRating);
     }
 
-    // Sort
     switch (this.sortBy) {
       case 'price_asc':  result.sort((a, b) => a.pricePerNight - b.pricePerNight); break;
       case 'price_desc': result.sort((a, b) => b.pricePerNight - a.pricePerNight); break;
@@ -128,6 +121,9 @@ export class LuxuryHotelsComponent implements OnInit {
     return Math.ceil(this.filteredHotels.length / this.pageSize);
   }
 
+  // pagedHotels slices the already-filtered array for the current page. Because both
+  // filteredHotels and pagedHotels are getters, changing currentPage automatically
+  // shows the right slice on the next CD cycle without any extra method calls.
   get pagedHotels(): any[] {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.filteredHotels.slice(start, start + this.pageSize);
@@ -157,6 +153,7 @@ export class LuxuryHotelsComponent implements OnInit {
   }
 
   setRating(r: number) {
+    // Toggle behavior — clicking the same rating again clears the filter.
     this.minRating = this.minRating === r ? 0 : r;
     this.currentPage = 1;
   }

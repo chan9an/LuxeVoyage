@@ -14,12 +14,15 @@ export class ReviewService {
     return new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
   }
 
-  // Fetch all approved reviews for a hotel — public, no auth needed
+  // Public endpoint — returns only AI-approved reviews so the template never has to
+  // filter them client-side. No auth header needed here.
   getReviews(hotelId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/hotel/${hotelId}`);
   }
 
-  // Check if the logged-in user can submit a review for this hotel
+  // This call tells us whether to show the "Write a Review" button. The backend checks
+  // two things: whether the user has already reviewed this hotel, and whether they have
+  // a confirmed booking. We call this after the hotel loads so the UI gate is always accurate.
   canReview(hotelId: string): Observable<{ canReview: boolean; reason: string }> {
     return this.http.get<{ canReview: boolean; reason: string }>(
       `${this.apiUrl}/hotel/${hotelId}/can-review`,
@@ -27,7 +30,10 @@ export class ReviewService {
     );
   }
 
-  // Submit a review — returns 202 Accepted since it goes through AI moderation
+  // The backend returns 202 Accepted (not 201 Created) because the review isn't live yet.
+  // It gets queued to RabbitMQ, processed by AI.API for toxicity detection, and only then
+  // does Hotel.API flip IsApproved to true. The guest sees a "pending moderation" message
+  // immediately while the async pipeline runs in the background.
   submitReview(payload: {
     hotelId: string;
     bookingId: string;

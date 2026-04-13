@@ -18,7 +18,6 @@ export class DashboardComponent implements OnInit {
   deletingId: string | null = null;
   confirmDeleteId: string | null = null;
 
-  // Edit panel
   editingHotel: any = null;
   editForm!: FormGroup;
   editSaving = false;
@@ -29,6 +28,8 @@ export class DashboardComponent implements OnInit {
   editCitySearch = '';
   editShowCityDropdown = false;
 
+  // ViewChild gives us a reference to the city dropdown container so the HostListener
+  // can check whether a click happened inside or outside it to close the dropdown.
   @ViewChild('editCityContainer') editCityContainer!: ElementRef;
 
   private hotelService = inject(HotelService);
@@ -79,6 +80,9 @@ export class DashboardComponent implements OnInit {
     return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
   }
 
+  // These aggregate getters compute stats across all the manager's hotels for the
+  // dashboard summary cards. They run on every CD cycle but the computation is trivial
+  // so there's no need to memoize them.
   get avgRating(): string {
     if (!this.hotels.length) return '—';
     const avg = this.hotels.reduce((s, h) => s + (h.rating || 0), 0) / this.hotels.length;
@@ -103,6 +107,8 @@ export class DashboardComponent implements OnInit {
   loadHotels() {
     this.isLoading = true;
     this.error = '';
+    // getManagerHotels() hits the /hotels/my endpoint which the backend scopes to the
+    // logged-in manager's JWT — so we only ever get back hotels this manager owns.
     this.hotelService.getManagerHotels().subscribe({
       next: (data) => { this.hotels = data || []; this.isLoading = false; this.cdr.detectChanges(); },
       error: (err) => {
@@ -114,7 +120,6 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // ── Delete ────────────────────────────────────────────────────────────────
   askConfirmDelete(id: string) { this.confirmDeleteId = id; }
   cancelDelete() { this.confirmDeleteId = null; }
 
@@ -122,12 +127,16 @@ export class DashboardComponent implements OnInit {
     this.deletingId = id;
     this.confirmDeleteId = null;
     this.hotelService.deleteHotel(id).subscribe({
-      next: () => { this.hotels = this.hotels.filter(h => h.id !== id); this.deletingId = null; this.cdr.detectChanges(); },
+      next: () => {
+        // Remove from the local array immediately rather than re-fetching — optimistic update.
+        this.hotels = this.hotels.filter(h => h.id !== id);
+        this.deletingId = null;
+        this.cdr.detectChanges();
+      },
       error: () => { this.deletingId = null; this.error = 'Failed to delete property.'; this.cdr.detectChanges(); }
     });
   }
 
-  // ── Edit panel ────────────────────────────────────────────────────────────
   openEdit(hotel: any) {
     this.editingHotel = hotel;
     this.editError = '';
@@ -137,13 +146,16 @@ export class DashboardComponent implements OnInit {
     this.editCitySearch = hotel.location || '';
     this.editShowCityDropdown = false;
 
+    // We build the edit form fresh each time openEdit is called so it's always pre-filled
+    // with the current hotel's data. The amenities FormArray maps each available amenity
+    // to a boolean FormControl — true if the hotel currently has that amenity, false otherwise.
     this.editForm = this.fb.group({
-      name:         [hotel.name, Validators.required],
-      location:     [hotel.location, Validators.required],
-      type:         [hotel.type, Validators.required],
-      pricePerNight:[hotel.pricePerNight, [Validators.required, Validators.min(0)]],
-      description:  [hotel.description || ''],
-      amenities:    this.fb.array(
+      name:          [hotel.name, Validators.required],
+      location:      [hotel.location, Validators.required],
+      type:          [hotel.type, Validators.required],
+      pricePerNight: [hotel.pricePerNight, [Validators.required, Validators.min(0)]],
+      description:   [hotel.description || ''],
+      amenities:     this.fb.array(
         this.availableAmenities.map(a => new FormControl((hotel.amenities || []).includes(a.value)))
       ),
     });
@@ -160,6 +172,8 @@ export class DashboardComponent implements OnInit {
     const file = event.target.files[0];
     if (!file) return;
     this.editNewFile = file;
+    // FileReader reads the file as a data URL so we can show a local preview immediately
+    // without uploading to Cloudinary yet. The actual upload happens in saveEdit().
     const reader = new FileReader();
     reader.onload = () => { this.editImagePreview = reader.result as string; this.cdr.detectChanges(); };
     reader.readAsDataURL(file);
@@ -183,6 +197,9 @@ export class DashboardComponent implements OnInit {
     this.editError = '';
     this.editSuccess = false;
 
+    // doSave is a local function that handles the actual API call. We define it here so
+    // both the "upload new image first" and "keep existing image" paths can call the same
+    // save logic without duplicating the DTO construction and HTTP call.
     const doSave = (imageUrl: string) => {
       const fv = this.editForm.value;
       const selectedAmenities = fv.amenities
@@ -191,18 +208,13 @@ export class DashboardComponent implements OnInit {
 
       const dto = {
         ...this.editingHotel,
-        name: fv.name,
-        location: fv.location,
-        type: Number(fv.type),
-        pricePerNight: fv.pricePerNight,
-        description: fv.description,
-        amenities: selectedAmenities,
-        imageUrl,
+        name: fv.name, location: fv.location,
+        type: Number(fv.type), pricePerNight: fv.pricePerNight,
+        description: fv.description, amenities: selectedAmenities, imageUrl,
       };
 
       this.hotelService.updateHotel(this.editingHotel.id, dto).subscribe({
         next: () => {
-          // Update local list
           const idx = this.hotels.findIndex(h => h.id === this.editingHotel.id);
           if (idx > -1) this.hotels[idx] = { ...this.hotels[idx], ...dto };
           this.editSaving = false;
@@ -218,6 +230,8 @@ export class DashboardComponent implements OnInit {
       });
     };
 
+    // If the manager selected a new image, upload it to Cloudinary first and then save.
+    // Otherwise just reuse the existing imageUrl from the hotel record.
     if (this.editNewFile) {
       this.hotelService.uploadImageToCloudinary(this.editNewFile).subscribe({
         next: (res) => doSave(res.secure_url),
@@ -228,6 +242,9 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  // HostListener on document:click closes the city dropdown when the user clicks anywhere
+  // outside the dropdown container. This is the standard Angular pattern for dismissible
+  // dropdowns — no overlay div needed, just a contains() check on the click target.
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     if (this.editCityContainer && !this.editCityContainer.nativeElement.contains(event.target)) {

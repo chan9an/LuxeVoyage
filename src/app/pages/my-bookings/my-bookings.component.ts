@@ -21,11 +21,14 @@ export class MyBookingsComponent implements OnInit {
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
+  // These lookup tables map the BookingStatus enum integer values from the backend to
+  // Tailwind CSS classes and human-readable labels. Keeping them as readonly objects
+  // here means the template stays clean — no switch statements or inline ternaries needed.
   readonly statusColors: { [key: number]: string } = {
-    0: 'text-amber-400 bg-amber-400/10 border-amber-400/20',   // Pending
-    1: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20', // Confirmed
-    2: 'text-red-400 bg-red-400/10 border-red-400/20',         // Failed
-    3: 'text-stone-400 bg-stone-400/10 border-stone-400/20',   // Cancelled
+    0: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+    1: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+    2: 'text-red-400 bg-red-400/10 border-red-400/20',
+    3: 'text-stone-400 bg-stone-400/10 border-stone-400/20',
   };
 
   readonly statusLabels: { [key: number]: string } = {
@@ -33,6 +36,9 @@ export class MyBookingsComponent implements OnInit {
   };
 
   ngOnInit() {
+    // Auth guard — redirect to login if the user somehow lands here without a token.
+    // In a larger app we'd use a proper Route Guard, but for a project of this size
+    // an inline check in ngOnInit is perfectly fine and keeps things simple.
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
       return;
@@ -44,6 +50,8 @@ export class MyBookingsComponent implements OnInit {
     this.isLoading = true;
     this.bookingService.getMyBookings().subscribe({
       next: (data) => {
+        // Sort newest first so the most recent booking is always at the top of the list.
+        // We do this client-side because the backend doesn't guarantee sort order.
         this.bookings = (data || []).sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
@@ -62,8 +70,11 @@ export class MyBookingsComponent implements OnInit {
     this.cancellingId = id;
     this.bookingService.cancelBooking(id).subscribe({
       next: () => {
+        // Optimistic UI update — we flip the status locally instead of re-fetching the
+        // whole list. This makes the cancellation feel instant to the user without an
+        // extra round trip to the server.
         const b = this.bookings.find(b => b.id === id);
-        if (b) b.status = 3; // Cancelled
+        if (b) b.status = 3;
         this.cancellingId = null;
         this.cdr.detectChanges();
       },
@@ -88,6 +99,6 @@ export class MyBookingsComponent implements OnInit {
   }
 
   canCancel(booking: any): boolean {
-    return booking.status === 0 || booking.status === 1; // Pending or Confirmed
+    return booking.status === 0 || booking.status === 1;
   }
 }

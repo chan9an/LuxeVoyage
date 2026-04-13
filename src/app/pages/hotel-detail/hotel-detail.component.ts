@@ -20,18 +20,16 @@ export class HotelDetailComponent implements OnInit {
   isLoading = true;
   error = '';
 
-  // Booking state
   checkIn = '';
   checkOut = '';
   guests = 2;
   selectedRoomType: any = null;
   guestWarning = '';
 
-  // Review state
   reviews: any[] = [];
   canSubmitReview = false;
   reviewBlockReason = '';
-  userBookingForHotel: any = null;   // the confirmed booking we'll attach to the review
+  userBookingForHotel: any = null;
   showReviewForm = false;
   reviewRating = 5;
   reviewComment = '';
@@ -42,11 +40,18 @@ export class HotelDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private hotelService = inject(HotelService);
+
+  // authService is protected (not private) so the template can call authService.isLoggedIn()
+  // directly in *ngIf conditions. Private members aren't accessible from the template in
+  // strict mode, so we use protected here as the minimal visibility needed.
   protected authService = inject(AuthService);
   private reviewService = inject(ReviewService);
   private bookingService = inject(BookingService);
   private cdr = inject(ChangeDetectorRef);
 
+  // These lookup tables map backend enum integers to display strings and Material icon names.
+  // Keeping them as readonly component properties means the template stays declarative and
+  // we avoid duplicating these mappings across multiple components.
   readonly amenityIcons: { [key: number]: { icon: string; label: string; category: string } } = {
     0:  { icon: 'wifi',              label: 'Free Wifi',          category: 'Connectivity' },
     1:  { icon: 'local_parking',     label: 'Parking',            category: 'Convenience' },
@@ -80,6 +85,10 @@ export class HotelDetailComponent implements OnInit {
   };
 
   ngOnInit() {
+    // We subscribe to paramMap rather than snapshot.params because paramMap is an Observable
+    // that emits whenever the route params change. This means if the user navigates from one
+    // hotel detail page to another (same component, different :id), the component reloads
+    // the correct hotel without being destroyed and recreated.
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (!id) { this.router.navigate(['/hotels']); return; }
@@ -95,7 +104,9 @@ export class HotelDetailComponent implements OnInit {
         if (data.roomTypes?.length) this.selectedRoomType = data.roomTypes[0];
         this.isLoading = false;
         this.cdr.detectChanges();
-        // Load reviews and check review eligibility after hotel loads
+        // We kick off reviews and eligibility checks after the hotel loads rather than
+        // in parallel because we want the main content to appear first. Reviews are
+        // secondary content and a slight delay there is acceptable.
         this.loadReviews(id);
         if (this.authService.isLoggedIn()) {
           this.checkReviewEligibility(id);
@@ -110,15 +121,20 @@ export class HotelDetailComponent implements OnInit {
   }
 
   loadReviews(hotelId: string) {
+    // catchError with of([]) means a failed reviews fetch silently returns an empty array
+    // instead of crashing the whole page. Reviews are non-critical content so we degrade
+    // gracefully rather than showing an error state.
     this.reviewService.getReviews(hotelId).pipe(catchError(() => of([]))).subscribe(reviews => {
       this.reviews = reviews;
       this.cdr.detectChanges();
     });
   }
 
-  // Check if the logged-in user has a confirmed booking for this hotel and hasn't reviewed yet.
-  // We do this by fetching their bookings and looking for one that matches the hotel.
   checkReviewEligibility(hotelId: string) {
+    // forkJoin fires both HTTP calls simultaneously and waits for both to complete before
+    // emitting. This is more efficient than chaining them sequentially — we save one full
+    // round-trip latency. Both calls are wrapped in catchError so a failure in either one
+    // doesn't prevent the other result from being used.
     forkJoin({
       canReview: this.reviewService.canReview(hotelId).pipe(catchError(() => of({ canReview: false, reason: 'Unable to check.' }))),
       bookings:  this.bookingService.getMyBookings().pipe(catchError(() => of([])))
@@ -127,7 +143,8 @@ export class HotelDetailComponent implements OnInit {
         this.canSubmitReview = false;
         this.reviewBlockReason = canReview.reason;
       } else {
-        // Find a confirmed booking for this hotel — we need the bookingId to attach to the review
+        // We look for a confirmed booking (status 1) for this specific hotel. We need the
+        // bookingId to attach to the review submission so the backend can verify the stay.
         const confirmedBooking = (bookings as any[]).find(
           (b: any) => b.hotelId === hotelId && (b.status === 1 || b.status === 'Confirmed')
         );
@@ -148,6 +165,9 @@ export class HotelDetailComponent implements OnInit {
     this.reviewSubmitting = true;
     this.reviewSubmitError = '';
 
+    // The backend returns 202 Accepted because the review goes through the AI toxicity
+    // pipeline asynchronously before going live. We show a "pending moderation" message
+    // immediately and disable the form so the user can't submit twice.
     this.reviewService.submitReview({
       hotelId:   this.hotel.id,
       bookingId: this.userBookingForHotel.id,
@@ -174,6 +194,8 @@ export class HotelDetailComponent implements OnInit {
     this.reviewRating = r;
   }
 
+  // Computed getters keep the template clean — the template just reads nightCount and
+  // totalPrice as if they were plain properties, but the logic lives here in the class.
   get nightCount(): number {
     if (!this.checkIn || !this.checkOut) return 0;
     const diff = new Date(this.checkOut).getTime() - new Date(this.checkIn).getTime();
@@ -196,18 +218,15 @@ export class HotelDetailComponent implements OnInit {
     return new Date().toISOString().split('T')[0];
   }
 
-  // Max guests allowed by selected room type
   get maxGuests(): number {
     return this.selectedRoomType?.maxOccupancy ?? 99;
   }
 
-  // Available rooms for selected room type
   get availableRoomCount(): number {
     if (!this.selectedRoomType) return 0;
     return this.getAvailableRooms(this.selectedRoomType);
   }
 
-  // Rooms needed = ceil(guests / maxOccupancy)
   get roomsNeeded(): number {
     if (!this.selectedRoomType || this.guests <= 0) return 1;
     return Math.ceil(this.guests / this.selectedRoomType.maxOccupancy);
@@ -270,22 +289,23 @@ export class HotelDetailComponent implements OnInit {
     );
     if (!availableRoom) return;
 
-    // Navigate to checkout with booking data in router state
+    // We pass the booking data via router state rather than query params to keep the URL
+    // clean and avoid exposing pricing data in the browser history or server logs.
     this.router.navigate(['/checkout'], {
       state: {
-        hotelId:      this.hotel.id,
-        roomId:       availableRoom.id,
-        checkInDate:  this.checkIn,
-        checkOutDate: this.checkOut,
-        totalPrice:   this.totalPrice * this.roomsNeeded,
-        guestCount:   this.guests,
-        roomsBooked:  this.roomsNeeded,
-        hotelName:    this.hotel.name,
-        roomName:     this.selectedRoomType.name,
-        hotelImageUrl:this.hotel.imageUrl,
-        location:     this.hotel.location,
-        nightCount:   this.nightCount,
-        pricePerNight:this.selectedRoomType?.pricePerNight ?? this.hotel.pricePerNight,
+        hotelId:       this.hotel.id,
+        roomId:        availableRoom.id,
+        checkInDate:   this.checkIn,
+        checkOutDate:  this.checkOut,
+        totalPrice:    this.totalPrice * this.roomsNeeded,
+        guestCount:    this.guests,
+        roomsBooked:   this.roomsNeeded,
+        hotelName:     this.hotel.name,
+        roomName:      this.selectedRoomType.name,
+        hotelImageUrl: this.hotel.imageUrl,
+        location:      this.hotel.location,
+        nightCount:    this.nightCount,
+        pricePerNight: this.selectedRoomType?.pricePerNight ?? this.hotel.pricePerNight,
       }
     });
   }
