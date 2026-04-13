@@ -1,9 +1,9 @@
 export const environment = {
-  production: false,
-  authApiUrl: 'https://localhost:7217/auth',
-  hotelApiUrl: 'https://localhost:7217/hotels',
-  reviewApiUrl: 'https://localhost:7217/reviews',
-  bookingApiUrl: 'https://localhost:7217/booking',
-  cloudinaryCloudName: 'deenhwt0q',
+  production: true,
+  authApiUrl:    'https://api-gateway.wonderfulforest-8edf1418.centralindia.azurecontainerapps.io/auth',
+  hotelApiUrl:   'https://api-gateway.wonderfulforest-8edf1418.centralindia.azurecontainerapps.io/hotels',
+  reviewApiUrl:  'https://api-gateway.wonderfulforest-8edf1418.centralindia.azurecontainerapps.io/reviews',
+  bookingApiUrl: 'https://api-gateway.wonderfulforest-8edf1418.centralindia.azurecontainerapps.io/booking',
+  cloudinaryCloudName:   'deenhwt0q',
   cloudinaryUploadPreset: 'hotel_unsigned_upload'
 };
