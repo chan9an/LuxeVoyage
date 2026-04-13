@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 
@@ -32,8 +32,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
+    private router: Router
   ) {
     // We build the form in the constructor so it's ready before the template renders.
     // Doing it here rather than ngOnInit means the form is never undefined when Angular
@@ -46,20 +45,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.startImageRotation();
-
-    // Google OAuth redirects back to /login?token=... after the backend exchanges the
-    // Google code for a JWT. We read the token from the query params here, save it, and
-    // redirect the user to the right dashboard. This is the final leg of the OAuth flow.
-    this.route.queryParams.subscribe(params => {
-        if (params['token']) {
-            this.authService.saveToken(params['token']);
-            if (this.authService.getUserRole() === 'HotelManager') {
-                this.router.navigate(['/partner/dashboard']);
-            } else {
-                this.router.navigate(['/']);
-            }
-        }
-    });
   }
 
   ngOnDestroy(): void {
