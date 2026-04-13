@@ -10,13 +10,17 @@ import { AddPropertyComponent } from './pages/partner/add-property/add-property.
 import { DashboardComponent } from './pages/partner/dashboard/dashboard.component';
 import { HotelDetailComponent } from './pages/hotel-detail/hotel-detail.component';
 import { MyBookingsComponent } from './pages/my-bookings/my-bookings.component';
+import { ForgotPasswordComponent } from './pages/auth/forgot-password.component';
+import { CheckoutComponent } from './pages/checkout/checkout.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'LuxeVoyage | The World Precisely Curated' },
   { path: 'login', component: LoginComponent, title: 'LuxeVoyage | Sign In' },
   { path: 'signup', component: SignupComponent, title: 'LuxeVoyage | Membership' },
+  { path: 'forgot-password', component: ForgotPasswordComponent, title: 'LuxeVoyage | Reset Password' },
   { path: 'hotels', component: LuxuryHotelsComponent, title: 'LuxeVoyage | Luxury Hotels' },
   { path: 'hotels/:id', component: HotelDetailComponent, title: 'LuxeVoyage | Property' },
+  { path: 'checkout', component: CheckoutComponent, title: 'LuxeVoyage | Checkout' },
   { path: 'my-bookings', component: MyBookingsComponent, title: 'LuxeVoyage | My Bookings' },
   { path: 'destinations', component: TopDestinationsComponent, title: 'LuxeVoyage | Top Destinations' },
   { path: 'vip', component: VipAccessComponent, title: 'LuxeVoyage | Elite VIP Access' },

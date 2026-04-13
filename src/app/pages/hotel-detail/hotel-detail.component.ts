@@ -3,8 +3,11 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HotelService } from '../../services/hotel.service';
-import { BookingService } from '../../services/booking.service';
 import { AuthService } from '../../services/auth.service';
+import { ReviewService } from '../../services/review.service';
+import { BookingService } from '../../services/booking.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-hotel-detail',
@@ -22,16 +25,26 @@ export class HotelDetailComponent implements OnInit {
   checkOut = '';
   guests = 2;
   selectedRoomType: any = null;
-  bookingRequested = false;
-  bookingLoading = false;
-  bookingError = '';
   guestWarning = '';
+
+  // Review state
+  reviews: any[] = [];
+  canSubmitReview = false;
+  reviewBlockReason = '';
+  userBookingForHotel: any = null;   // the confirmed booking we'll attach to the review
+  showReviewForm = false;
+  reviewRating = 5;
+  reviewComment = '';
+  reviewSubmitting = false;
+  reviewSubmitSuccess = false;
+  reviewSubmitError = '';
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private hotelService = inject(HotelService);
+  protected authService = inject(AuthService);
+  private reviewService = inject(ReviewService);
   private bookingService = inject(BookingService);
-  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
   readonly amenityIcons: { [key: number]: { icon: string; label: string; category: string } } = {
@@ -82,6 +95,11 @@ export class HotelDetailComponent implements OnInit {
         if (data.roomTypes?.length) this.selectedRoomType = data.roomTypes[0];
         this.isLoading = false;
         this.cdr.detectChanges();
+        // Load reviews and check review eligibility after hotel loads
+        this.loadReviews(id);
+        if (this.authService.isLoggedIn()) {
+          this.checkReviewEligibility(id);
+        }
       },
       error: () => {
         this.error = 'Property not found.';
@@ -89,6 +107,71 @@ export class HotelDetailComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  loadReviews(hotelId: string) {
+    this.reviewService.getReviews(hotelId).pipe(catchError(() => of([]))).subscribe(reviews => {
+      this.reviews = reviews;
+      this.cdr.detectChanges();
+    });
+  }
+
+  // Check if the logged-in user has a confirmed booking for this hotel and hasn't reviewed yet.
+  // We do this by fetching their bookings and looking for one that matches the hotel.
+  checkReviewEligibility(hotelId: string) {
+    forkJoin({
+      canReview: this.reviewService.canReview(hotelId).pipe(catchError(() => of({ canReview: false, reason: 'Unable to check.' }))),
+      bookings:  this.bookingService.getMyBookings().pipe(catchError(() => of([])))
+    }).subscribe(({ canReview, bookings }) => {
+      if (!canReview.canReview) {
+        this.canSubmitReview = false;
+        this.reviewBlockReason = canReview.reason;
+      } else {
+        // Find a confirmed booking for this hotel — we need the bookingId to attach to the review
+        const confirmedBooking = (bookings as any[]).find(
+          (b: any) => b.hotelId === hotelId && (b.status === 1 || b.status === 'Confirmed')
+        );
+        if (confirmedBooking) {
+          this.canSubmitReview = true;
+          this.userBookingForHotel = confirmedBooking;
+        } else {
+          this.canSubmitReview = false;
+          this.reviewBlockReason = 'You need a confirmed stay at this property to leave a review.';
+        }
+      }
+      this.cdr.detectChanges();
+    });
+  }
+
+  submitReview() {
+    if (!this.reviewComment.trim() || !this.userBookingForHotel) return;
+    this.reviewSubmitting = true;
+    this.reviewSubmitError = '';
+
+    this.reviewService.submitReview({
+      hotelId:   this.hotel.id,
+      bookingId: this.userBookingForHotel.id,
+      rating:    this.reviewRating,
+      comment:   this.reviewComment.trim()
+    }).subscribe({
+      next: () => {
+        this.reviewSubmitting = false;
+        this.reviewSubmitSuccess = true;
+        this.showReviewForm = false;
+        this.canSubmitReview = false;
+        this.reviewBlockReason = 'Your review is pending moderation.';
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.reviewSubmitting = false;
+        this.reviewSubmitError = err?.error?.message ?? 'Failed to submit review. Please try again.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  setReviewRating(r: number) {
+    this.reviewRating = r;
   }
 
   get nightCount(): number {
@@ -182,39 +265,27 @@ export class HotelDetailComponent implements OnInit {
       return;
     }
 
-    // Pick the first available room of the selected type
     const availableRoom = (this.hotel.rooms || []).find(
       (r: any) => r.roomTypeId === this.selectedRoomType.id && r.isAvailable
     );
     if (!availableRoom) return;
 
-    this.bookingLoading = true;
-    this.bookingError = '';
-
-    this.bookingService.createBooking({
-      hotelId: this.hotel.id,
-      roomId: availableRoom.id,
-      checkInDate: this.checkIn,
-      checkOutDate: this.checkOut,
-      totalPrice: this.totalPrice * this.roomsNeeded,
-      guestCount: this.guests,
-      roomsBooked: this.roomsNeeded,
-      hotelName: this.hotel.name,
-      roomName: this.selectedRoomType.name,
-      hotelImageUrl: this.hotel.imageUrl,
-      location: this.hotel.location,
-    }).subscribe({
-      next: () => {
-        this.bookingLoading = false;
-        this.bookingRequested = true;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.bookingLoading = false;
-        this.bookingError = err.status === 401
-          ? 'Please log in to make a reservation.'
-          : 'Booking failed. Please try again.';
-        this.cdr.detectChanges();
+    // Navigate to checkout with booking data in router state
+    this.router.navigate(['/checkout'], {
+      state: {
+        hotelId:      this.hotel.id,
+        roomId:       availableRoom.id,
+        checkInDate:  this.checkIn,
+        checkOutDate: this.checkOut,
+        totalPrice:   this.totalPrice * this.roomsNeeded,
+        guestCount:   this.guests,
+        roomsBooked:  this.roomsNeeded,
+        hotelName:    this.hotel.name,
+        roomName:     this.selectedRoomType.name,
+        hotelImageUrl:this.hotel.imageUrl,
+        location:     this.hotel.location,
+        nightCount:   this.nightCount,
+        pricePerNight:this.selectedRoomType?.pricePerNight ?? this.hotel.pricePerNight,
       }
     });
   }

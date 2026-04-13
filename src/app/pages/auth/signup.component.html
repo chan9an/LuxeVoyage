@@ -26,6 +26,7 @@
 
 <section class="flex-1 flex flex-col justify-center items-center px-6 py-12 md:px-16 lg:px-24 bg-surface-container-lowest relative pt-32 h-screen overflow-y-auto">
 <div class="w-full max-w-md">
+<ng-container *ngIf="step === 'register'">
 <div class="mb-12">
 <h2 class="font-headline text-4xl text-on-surface mb-2 tracking-tight">Begin Your Journey</h2>
 <p class="text-on-surface-variant font-light">Enter the world of LuxeVoyage Private Office.</p>
@@ -85,6 +86,38 @@
                         <a routerLink="/login" class="text-primary font-medium ml-2 hover:opacity-80 transition-opacity cursor-pointer">Sign In</a>
 </p>
 </div>
+</ng-container>
+
+<!-- ── OTP Verification Step ── -->
+<ng-container *ngIf="step === 'verify'">
+  <div class="mb-10">
+    <h2 class="font-headline text-4xl text-on-surface mb-2 tracking-tight">Verify Your Email</h2>
+    <p class="text-on-surface-variant font-light text-sm mt-2">We sent a 6-digit code to</p>
+    <p class="text-primary font-medium text-sm mt-1">{{ pendingEmail }}</p>
+  </div>
+
+  <form class="space-y-8" [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
+    <div *ngIf="errorMessage" class="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg text-sm">
+      {{ errorMessage }}
+    </div>
+
+    <div>
+      <label class="block font-label text-[10px] uppercase tracking-[0.15em] text-outline mb-2">6-Digit Code</label>
+      <input formControlName="otp" type="text" maxlength="6" placeholder="000000"
+        class="w-full bg-surface-container-high border-none border-b border-outline-variant/30 px-0 py-4 text-white text-3xl tracking-[0.5em] placeholder-stone-700 focus:ring-0 focus:border-primary transition-all outline-none text-center font-bold"/>
+    </div>
+
+    <button type="submit" [disabled]="otpForm.invalid || isLoading"
+      class="bg-gradient-to-br from-primary to-primary-container w-full py-5 rounded-lg text-on-primary font-label text-xs uppercase tracking-[0.2em] font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+      <span *ngIf="isLoading" class="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
+      {{ isLoading ? 'Verifying...' : 'Verify & Activate Account' }}
+    </button>
+
+    <button type="button" (click)="resendOtp()" class="w-full text-center text-xs text-stone-500 hover:text-primary transition-colors">
+      Didn't receive it? <span class="text-primary underline">Resend code</span>
+    </button>
+  </form>
+</ng-container>
 </div>
 <footer class="absolute bottom-8 left-0 w-full px-12">
 <div class="flex flex-col md:flex-row justify-between items-center w-full gap-4">

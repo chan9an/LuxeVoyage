@@ -10,7 +10,6 @@
       <a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/destinations" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">Destinations</a>
       <a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/fleet" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">The Elite Fleet</a>
       <a class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/vip" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">VIP</a>
-      <a *ngIf="authService.isLoggedIn() && !authService.isHotelManager()" class="font-serif tracking-tight text-neutral-400 hover:text-neutral-100 transition-colors duration-300" routerLink="/my-bookings" routerLinkActive="!text-amber-500 border-b border-amber-500/30 pb-1">My Bookings</a>
     </ng-container>
     <ng-container *ngIf="isPartnerRoute">
       <a class="font-serif tracking-tight text-neutral-400 hover:text-amber-400 transition-colors duration-300" routerLink="/partner/dashboard" routerLinkActive="!text-amber-400 border-b border-amber-500/30 pb-1">Dashboard</a>
@@ -63,6 +62,12 @@
               Add Property
             </a>
           </ng-container>
+
+          <!-- My Bookings — visible to all logged-in users -->
+          <a routerLink="/my-bookings" (click)="showProfileMenu = false" class="block px-4 py-3 text-sm text-neutral-300 hover:bg-white/5 transition-colors flex items-center gap-3">
+            <span class="material-symbols-outlined text-base">receipt_long</span>
+            My Bookings
+          </a>
 
           <!-- Customer links -->
           <ng-container *ngIf="!authService.isHotelManager()">

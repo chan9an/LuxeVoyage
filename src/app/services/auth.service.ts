@@ -104,6 +104,26 @@ export class AuthService {
     return this.getUserRole() === 'HotelManager';
   }
 
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  verifyOtp(email: string, otp: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-otp`, { email, otp });
+  }
+
+  resetPassword(email: string, otp: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { email, otp, newPassword });
+  }
+
+  verifyEmail(email: string, otp: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-email`, { email, otp });
+  }
+
+  resendVerification(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/resend-verification`, { email });
+  }
+
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
   }

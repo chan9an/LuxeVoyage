@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HotelService } from '../../services/hotel.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +28,7 @@ export class HomeComponent implements OnInit {
   private hotelService = inject(HotelService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  public authService = inject(AuthService);
 
   readonly topDestinations = [
     {

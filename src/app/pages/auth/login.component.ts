@@ -95,6 +95,13 @@ export class LoginComponent implements OnInit, OnDestroy {
              parsedError = err.error.message;
           } else if (typeof err.error === 'string') {
              parsedError = err.error;
+          } else if (err.error.Message) {
+             parsedError = err.error.Message;
+             // Unverified account — redirect to signup OTP step
+             if (err.error.requiresVerification || err.error.RequiresVerification) {
+               this.router.navigate(['/signup'], { state: { verifyEmail: err.error.email || err.error.Email } });
+               return;
+             }
           }
         }
         
